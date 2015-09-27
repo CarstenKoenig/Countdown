@@ -25,12 +25,14 @@ executable CountdownGame
                      , text
                      , bytestring
                      , blaze-html
+                     , blaze-builder
                      , persistent
                      , persistent-template
                      , persistent-sqlite
                      , network
                      , wai-middleware-static
                      , wai-extra
+                     , cookie
                      , time
   hs-source-dirs:      src
   default-language:    Haskell2010
