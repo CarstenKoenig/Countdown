@@ -28,6 +28,7 @@ executable CountdownGame
                      , persistent
                      , persistent-template
                      , persistent-sqlite
+                     , network
                      , wai-middleware-static
                      , wai-extra
                      , time
