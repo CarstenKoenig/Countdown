@@ -23,10 +23,12 @@ data PlayerCookie = PlayerCookie { nickName :: Text, playerId :: Integer }
 getPlayerCookie :: ActionM (Maybe PlayerCookie)
 getPlayerCookie = do
   cs <- getCookies
-  return $ do
-    cs' <- cs
-    name <- lookup "nickName" cs'
-    id   <- lookup "playerId" cs'
+  return $ cs >>= readPlayerValues
+
+readPlayerValues :: CookiesText -> Maybe PlayerCookie
+readPlayerValues cs = do    
+    name <- lookup "nickName" cs
+    id   <- lookup "playerId" cs
     return $ PlayerCookie (T.fromStrict name) (read . T.unpack $ T.fromStrict id)
 
 setPlayerCookie :: PlayerCookie -> ActionM ()
