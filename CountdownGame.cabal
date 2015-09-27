@@ -1,0 +1,35 @@
+name:                CountdownGame
+version:             0.1.0.0
+synopsis:            Countdown-Game für den DeveloperOpenSpace 2015
+-- description:         
+license:             MIT
+license-file:        LICENSE
+author:              Carsten König
+maintainer:          carsten@gettingsharper.de
+-- copyright:           
+category:            Web
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >=1.10
+
+executable CountdownGame
+  main-is:             Main.hs
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.8 && <4.9
+                     , wai
+                     , warp
+                     , http-types
+                     , resourcet
+                     , scotty
+                     , text
+                     , bytestring
+                     , blaze-html
+                     , persistent
+                     , persistent-template
+                     , persistent-sqlite
+                     , wai-middleware-static
+                     , wai-extra
+                     , time
+  hs-source-dirs:      src
+  default-language:    Haskell2010
