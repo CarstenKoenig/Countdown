@@ -2,7 +2,6 @@
 
 module CountdownGame.PlayersRepository
        ( Players
-       , initializePlayers
        , getPlayer
        , getPlayers
        , addPlayer
@@ -16,13 +15,6 @@ import qualified Data.Map.Strict as M
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
 import CountdownGame.Game
-
-type PlayersMap = Map PlayerId Player
-  
-newtype Players = Players (IORef (PlayersMap))
-
-initializePlayers :: IO Players
-initializePlayers = Players <$> newIORef M.empty
 
 getPlayer :: PlayerId -> Players -> IO (Maybe Player)
 getPlayer id = readRef (getPlayer' id)

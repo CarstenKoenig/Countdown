@@ -28,6 +28,8 @@ import Text.Blaze.Html5.Attributes
 import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
+import CountdownGame.Game
+
 import CountdownGame.PlayersRepository (Players)
 import qualified CountdownGame.PlayersRepository as Rep
 
@@ -36,9 +38,9 @@ import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
 import qualified CountdownGame.Players as Players
 
-play :: Players -> ActionM ()
-play ps = do
-    player <- Players.registeredPlayer ps
+play :: State -> ActionM ()
+play state = do
+    player <- Players.registeredPlayer (players state)
     if isNothing player
       then redirect "/register"
       else render $ PlayView.render (fromJust player)
@@ -46,15 +48,15 @@ play ps = do
 register :: ActionM ()
 register = render RegisterView.render
 
-postRegister :: Players -> ActionM ()
-postRegister ps = do
+postRegister :: State -> ActionM ()
+postRegister state = do
   name <- param "nickName"
-  Players.registerPlayer name ps
+  Players.registerPlayer name (players state)
   redirect "/play"         
 
-admin :: Players -> ActionM ()
-admin ps = do
-  players <- liftIO $ Rep.getPlayers ps
+admin :: State -> ActionM ()
+admin state = do
+  players <- liftIO $ Rep.getPlayers (players state)
   localhost <- isLocalhost
   if not localhost
     then redirect "/admin"

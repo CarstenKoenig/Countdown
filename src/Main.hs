@@ -26,26 +26,11 @@ import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Network.Wai.Middleware.Static (staticPolicy, noDots, (>->), addBase)
 
 import CountdownGame.Game
-import CountdownGame.PlayersRepository (Players)
-import qualified CountdownGame.PlayersRepository as Rep
-import CountdownGame.Rounds (RoundState)
 import qualified CountdownGame.Rounds as Rounds
 import qualified CountdownGame.Actions as Actions
 import qualified CountdownGame.Cookies as Cookies
 
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
-
-data State =
-  State
-  { currentRound :: RoundState
-  , players      :: Players
-  }
-
-initState :: IO State
-initState = do
-  players <- Rep.initializePlayers
-  currentRound <- Rounds.emptyRoundState
-  return $ State currentRound players
 
 main :: IO ()
 main = do
@@ -58,7 +43,7 @@ main = do
       if localHost
         then redirect "/admin"
         else redirect "/play"
-    get "/play" $ Actions.play (players state)
+    get "/play" $ Actions.play state
     get "/register" Actions.register
-    get "/admin" $ Actions.admin (players state)
-    post "/register" $ Actions.postRegister (players state)
+    get "/admin" $ Actions.admin state
+    post "/register" $ Actions.postRegister state
