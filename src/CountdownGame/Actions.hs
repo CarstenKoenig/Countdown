@@ -31,11 +31,11 @@ import Network.Wai (remoteHost)
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
-import qualified CountdownGame.Cookies as Cookies
+import qualified CountdownGame.Players as Players
 
 play :: ActionM ()
 play = do
-    registered <- isRegistered
+    registered <- Players.isRegistered
     if not registered
       then redirect "/register"
       else render PlayView.render
@@ -46,8 +46,7 @@ register = render RegisterView.render
 postRegister :: ActionM ()
 postRegister = do
   name <- param "nickName"
-  let cookie = Cookies.PlayerCookie name 1
-  Cookies.setPlayerCookie cookie
+  Players.registerPlayer 1 name
   redirect "/play"         
 
 admin :: ActionM ()
@@ -72,8 +71,3 @@ isLocalhost = do
   where hostnameIsLocal sockAdr =
           "127.0.0.1" `isPrefixOf` show sockAdr ||
           "localhost" `isPrefixOf` (map toLower . show) sockAdr
-
-isRegistered :: ActionM Bool
-isRegistered = do
-  player <- Cookies.getPlayerCookie
-  trace (maybe "Cookie not set!" (unpack . Cookies.nickName) player) $ return $ isJust player
