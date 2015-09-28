@@ -8,11 +8,11 @@ module CountdownGame.Actions
        , isLocalhost
        )where
 
-import Debug.Trace (trace)
+import Control.Monad.IO.Class(liftIO)
 
 import Data.Char (toLower)
 import Data.List(isPrefixOf)
-import Data.Maybe(isJust)
+import Data.Maybe(isNothing, fromJust)
 
 import Data.Text.Lazy (Text, unpack)
 
@@ -29,6 +29,8 @@ import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
 import CountdownGame.PlayersRepository (Players)
+import qualified CountdownGame.PlayersRepository as Rep
+
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
@@ -36,10 +38,10 @@ import qualified CountdownGame.Players as Players
 
 play :: Players -> ActionM ()
 play ps = do
-    registered <- Players.isRegistered ps
-    if not registered
+    player <- Players.registeredPlayer ps
+    if isNothing player
       then redirect "/register"
-      else render PlayView.render
+      else render $ PlayView.render (fromJust player)
               
 register :: ActionM ()
 register = render RegisterView.render
@@ -50,12 +52,13 @@ postRegister ps = do
   Players.registerPlayer name ps
   redirect "/play"         
 
-admin :: ActionM ()
-admin = do
-    localhost <- isLocalhost
-    if not localhost
-      then redirect "/admin"
-      else render AdminView.render
+admin :: Players -> ActionM ()
+admin ps = do
+  players <- liftIO $ Rep.getPlayers ps
+  localhost <- isLocalhost
+  if not localhost
+    then redirect "/admin"
+    else render (AdminView.render players)
 
 render :: Html -> ActionM ()
 render html = do

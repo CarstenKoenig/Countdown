@@ -43,5 +43,5 @@ main = do
         else redirect "/play"
     get "/play" $ Actions.play players
     get "/register" Actions.register
-    get "/admin" Actions.admin
+    get "/admin" $ Actions.admin players
     post "/register" $ Actions.postRegister players
