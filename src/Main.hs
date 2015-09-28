@@ -47,3 +47,4 @@ main = do
     get "/register" Actions.register
     get "/admin" $ Actions.admin state
     post "/register" $ Actions.postRegister state
+    get "/players" $ Actions.getPlayers state

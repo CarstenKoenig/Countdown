@@ -19,6 +19,7 @@ executable CountdownGame
   build-depends:       base >=4.8 && <4.9
                      , transformers
                      , containers
+                     , aeson
                      , wai
                      , warp
                      , http-types

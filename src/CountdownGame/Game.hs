@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module CountdownGame.Game
        ( PlayerId
@@ -11,6 +12,9 @@ module CountdownGame.Game
        , initState
        )where
 
+import GHC.Generics (Generic)
+
+import Data.Aeson (ToJSON, FromJSON, toEncoding, genericToEncoding, defaultOptions)
 import Data.Text (Text)
 
 import Data.Map.Strict (Map)
@@ -30,7 +34,10 @@ data Player =
   Player
   { nickName :: Text
   , playerId :: PlayerId
-  } deriving (Show, Read)
+  } deriving (Generic, Show)
+
+instance ToJSON Player
+instance FromJSON Player
 
 newtype Players = Players (IORef (PlayersMap))
 type PlayersMap = Map PlayerId Player

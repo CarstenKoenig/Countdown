@@ -5,6 +5,7 @@ module CountdownGame.Actions
        , register
        , postRegister
        , admin
+       , getPlayers
        , isLocalhost
        )where
 
@@ -53,6 +54,14 @@ postRegister state = do
   name <- param "nickName"
   Players.registerPlayer name (players state)
   redirect "/play"         
+
+getPlayers :: State -> ActionM ()
+getPlayers state = do
+  players <- liftIO $ Rep.getPlayers (players state)
+  localhost <- isLocalhost
+  if not localhost
+    then raise "you are not allowed to do that"
+    else json players
 
 admin :: State -> ActionM ()
 admin state = do
