@@ -6,40 +6,46 @@ module CountdownGame.Players
        , registerPlayer
        )where
 
+import Control.Monad.IO.Class(liftIO)
+
 import Data.Char (toLower)
 import Data.List(isPrefixOf)
+import Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import Data.Maybe(isJust)
+
+import Data.IORef (IORef(..), newIORef, atomicModifyIORef')
 
 import Data.Text.Lazy (Text, unpack)
 
 import Web.Scotty
 import qualified Web.Scotty as S
 
+import CountdownGame.Game
+import CountdownGame.PlayersRepository (Players)
+import CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Cookies as Cookies
-
-type PlayerId = Integer
-
-data Player =
-  Player
-  { nickName :: Text
-  , playerId :: PlayerId
-  } deriving (Show, Read)
-                
-
-registeredPlayer :: ActionM (Maybe Player)
-registeredPlayer = do
+               
+registeredPlayer :: Players -> ActionM (Maybe Player)
+registeredPlayer ps = do
   cookie <- Cookies.getPlayerCookie
-  return $ fromCookie <$> cookie
+  case cookie of
+    Nothing -> return Nothing
+    Just c  -> liftIO $ Rep.getPlayer (Cookies.playerId c) ps
 
-registerPlayer :: PlayerId -> Text -> ActionM Player
-registerPlayer id nick = do
-  let cookie = Cookies.PlayerCookie nick id
+registerPlayer :: Text -> Players -> ActionM Player
+registerPlayer nick ps = do
+  cookie <- Cookies.getPlayerCookie
+  player <- liftIO $ case cookie of
+    Nothing -> Rep.addPlayer nick ps
+    Just c  -> Rep.updatePlayer (Cookies.playerId c) nick ps
+  let cookie = Cookies.PlayerCookie (nickName player) (playerId player)
   Cookies.setPlayerCookie cookie
-  return $ fromCookie cookie
+  return player
 
-isRegistered :: ActionM Bool
-isRegistered = do
-  player <- registeredPlayer
+isRegistered :: Players -> ActionM Bool
+isRegistered ps = do
+  player <- registeredPlayer ps
   return $ isJust player
 
 fromCookie :: Cookies.PlayerCookie -> Player

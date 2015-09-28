@@ -28,14 +28,15 @@ import Text.Blaze.Html5.Attributes
 import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
+import CountdownGame.PlayersRepository (Players)
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
 import qualified CountdownGame.Players as Players
 
-play :: ActionM ()
-play = do
-    registered <- Players.isRegistered
+play :: Players -> ActionM ()
+play ps = do
+    registered <- Players.isRegistered ps
     if not registered
       then redirect "/register"
       else render PlayView.render
@@ -43,10 +44,10 @@ play = do
 register :: ActionM ()
 register = render RegisterView.render
 
-postRegister :: ActionM ()
-postRegister = do
+postRegister :: Players -> ActionM ()
+postRegister ps = do
   name <- param "nickName"
-  Players.registerPlayer 1 name
+  Players.registerPlayer name ps
   redirect "/play"         
 
 admin :: ActionM ()
