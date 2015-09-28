@@ -39,7 +39,7 @@ data Player =
 instance ToJSON Player
 instance FromJSON Player
 
-newtype Players = Players (IORef (PlayersMap))
+newtype Players = Players (IORef PlayersMap)
 type PlayersMap = Map PlayerId Player
          
 data Round =

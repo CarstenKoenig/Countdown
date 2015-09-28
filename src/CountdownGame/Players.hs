@@ -22,7 +22,6 @@ import Web.Scotty
 import qualified Web.Scotty as S
 
 import CountdownGame.Game
-import CountdownGame.PlayersRepository (Players)
 import CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Cookies as Cookies
                

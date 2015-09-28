@@ -11,9 +11,7 @@ import Control.Monad (forM_)
 import CountdownGame.Game
 
 render :: [Player] -> Html
-render players = do
-  html $ do
-    body $ do
+render players = html . body $ do
       h1 "COUNTdown"
       h3 "Mitspieler"
       ul . forM_ players $ \player ->

@@ -40,6 +40,8 @@ import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
 import qualified CountdownGame.Players as Players
 
+-- * controller actions
+
 play :: State -> ActionM ()
 play state = do
     player <- Players.registeredPlayer (players state)
@@ -64,7 +66,7 @@ admin state = do
     then redirect "/admin"
     else render (AdminView.render players)
 
--- ^ Web-API Part
+-- * Web-API Part
 
 getPlayers :: State -> ActionM ()
 getPlayers state = do
@@ -79,6 +81,10 @@ getRound state = do
   round <- liftIO $ Rounds.getRound (currentRound state)
   json round
 
+-- * Helpers
+
+-- ** rendering
+  
 render :: Html -> ActionM ()
 render html = do
   blaze $ link ! rel "stylesheet" ! href "styles.css" ! type_ "text/css"
@@ -86,6 +92,8 @@ render html = do
   
 blaze :: Html -> ActionM ()
 blaze = S.html . renderHtml
+
+-- ** access checks
 
 isLocalhost :: ActionM Bool
 isLocalhost = do

@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module CountdownGame.PlayersRepository
-       ( Players
-       , getPlayer
+       ( getPlayer
        , getPlayers
        , addPlayer
        , updatePlayer
@@ -38,7 +37,7 @@ getPlayers' :: PlayersMap -> [Player]
 getPlayers' = map snd . M.toAscList
 
 getPlayer' :: PlayerId -> PlayersMap -> Maybe Player
-getPlayer' id = M.lookup id
+getPlayer' = M.lookup
 
 addPlayer' :: Text -> PlayersMap -> (PlayersMap, Player)
 addPlayer' nick m =
