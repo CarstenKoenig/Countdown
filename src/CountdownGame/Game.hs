@@ -3,6 +3,7 @@
 module CountdownGame.Game
        ( PlayerId
        , Player (..)
+       , Round (..)
        )where
 
 import Data.Text (Text)
@@ -14,3 +15,9 @@ data Player =
   { nickName :: Text
   , playerId :: PlayerId
   } deriving (Show, Read)
+
+data Round =
+  Round
+  { target  :: Integer
+  , numbers :: [Integer]
+  } deriving (Show, Read)    

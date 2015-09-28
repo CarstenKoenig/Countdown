@@ -25,14 +25,31 @@ import Network.Wai (remoteHost)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Network.Wai.Middleware.Static (staticPolicy, noDots, (>->), addBase)
 
+import CountdownGame.Game
+import CountdownGame.PlayersRepository (Players)
 import qualified CountdownGame.PlayersRepository as Rep
+import CountdownGame.Rounds (RoundState)
+import qualified CountdownGame.Rounds as Rounds
 import qualified CountdownGame.Actions as Actions
 import qualified CountdownGame.Cookies as Cookies
 
-main :: IO ()
+import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
-main = do
+data State =
+  State
+  { currentRound :: RoundState
+  , players      :: Players
+  }
+
+initState :: IO State
+initState = do
   players <- Rep.initializePlayers
+  currentRound <- Rounds.emptyRoundState
+  return $ State currentRound players
+
+main :: IO ()
+main = do
+  state <- initState
   scotty 8080 $ do
     middleware logStdoutDev
     middleware $ staticPolicy (noDots >-> addBase "static")
@@ -41,7 +58,7 @@ main = do
       if localHost
         then redirect "/admin"
         else redirect "/play"
-    get "/play" $ Actions.play players
+    get "/play" $ Actions.play (players state)
     get "/register" Actions.register
-    get "/admin" $ Actions.admin players
-    post "/register" $ Actions.postRegister players
+    get "/admin" $ Actions.admin (players state)
+    post "/register" $ Actions.postRegister (players state)
