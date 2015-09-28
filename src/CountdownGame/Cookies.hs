@@ -6,9 +6,11 @@ module CountdownGame.Cookies
        , setPlayerCookie
        ) where
 
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy as T
-import qualified Data.Text.Lazy.Encoding as T
+import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
+import qualified Data.Text.Encoding as T
+import qualified Data.Text.Lazy.Encoding as LT
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import qualified Blaze.ByteString.Builder as B
@@ -29,24 +31,24 @@ readPlayerValues :: CookiesText -> Maybe PlayerCookie
 readPlayerValues cs = do    
     name <- lookup "nickName" cs
     id   <- lookup "playerId" cs
-    return $ PlayerCookie (T.fromStrict name) (read . T.unpack $ T.fromStrict id)
+    return $ PlayerCookie name (read $ T.unpack id)
 
 setPlayerCookie :: PlayerCookie -> ActionM ()
 setPlayerCookie pc = do
-  setCookie "playerId" (BSL.toStrict . T.encodeUtf8 . T.pack . show $ playerId pc)
-  setCookie "nickName" (BSL.toStrict . T.encodeUtf8 $ nickName pc)
+  setCookie "playerId" (T.encodeUtf8 . T.pack . show $ playerId pc)
+  setCookie "nickName" (T.encodeUtf8 $ nickName pc)
   
 makeCookie :: BS.ByteString -> BS.ByteString -> SetCookie
 makeCookie n v = def { setCookieName = n, setCookieValue = v }
 
 renderSetCookie' :: SetCookie -> Text
-renderSetCookie' = T.decodeUtf8 . B.toLazyByteString . renderSetCookie
+renderSetCookie' = T.decodeUtf8 . BSL.toStrict . B.toLazyByteString . renderSetCookie
 
 setCookie :: BS.ByteString -> BS.ByteString -> ActionM ()
-setCookie n v = addHeader "Set-Cookie" (renderSetCookie' (makeCookie n v))
+setCookie n v = addHeader "Set-Cookie" (LT.fromStrict . renderSetCookie' $ makeCookie n v)
 
 getCookies :: ActionM (Maybe CookiesText)
 getCookies =
-    fmap (parseCookiesText . lazyToStrict . T.encodeUtf8) <$> header "Cookie"
+    fmap (parseCookiesText . lazyToStrict . LT.encodeUtf8) <$> header "Cookie"
     where
         lazyToStrict = BS.concat . BSL.toChunks

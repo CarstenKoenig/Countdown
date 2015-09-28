@@ -2,7 +2,6 @@
 module CountdownGame.Views.Play where
 
 import Data.Text (append)
-import Data.Text.Lazy (toStrict)
 
 import Text.Blaze.Html5
 import Text.Blaze.Html5.Attributes
@@ -16,6 +15,6 @@ render player = do
   html $ do
     body $ do
       h1 "COUNTdown"
-      h3 . text $  "Hallo " `append` (toStrict $ nickName player)
+      h3 . text $  "Hallo " `append` nickName player
       ul $ do
         li "Player"

@@ -5,7 +5,7 @@ module CountdownGame.Game
        , Player (..)
        )where
 
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 
 type PlayerId = Integer
 

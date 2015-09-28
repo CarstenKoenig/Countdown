@@ -16,7 +16,7 @@ import Data.Maybe(isJust)
 
 import Data.IORef (IORef(..), newIORef, atomicModifyIORef')
 
-import Data.Text.Lazy (Text, unpack)
+import Data.Text (Text, unpack)
 
 import Web.Scotty
 import qualified Web.Scotty as S

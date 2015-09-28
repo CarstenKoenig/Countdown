@@ -9,7 +9,7 @@ module CountdownGame.PlayersRepository
        , updatePlayer
        )where
 
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 

@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module CountdownGame.Views.Admin where
 
-import Data.Text.Lazy (toStrict)
-
 import Text.Blaze.Html5
 import Text.Blaze.Html5.Attributes
 import qualified Text.Blaze.Html5 as H
@@ -19,4 +17,4 @@ render players = do
       h1 "COUNTdown"
       h3 "Mitspieler"
       ul . forM_ players $ \player ->
-        li . text . toStrict $ nickName player
+        li . text  $ nickName player
