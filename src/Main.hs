@@ -35,6 +35,7 @@ import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 main :: IO ()
 main = do
   state <- initState
+  Rounds.startGenerateRound (nextRound state)
   scotty 8080 $ do
     middleware logStdoutDev
     middleware $ staticPolicy (noDots >-> addBase "static")

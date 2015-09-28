@@ -27,6 +27,7 @@ type PlayerId = Integer
 data State =
   State
   { currentRound :: RoundState
+  , nextRound    :: RoundState
   , players      :: Players
   }
 
@@ -56,8 +57,8 @@ newtype RoundState = RoundState (IORef (Maybe Round))
 initState :: IO State
 initState = do
   players <- initializePlayers
-  currentRound <- emptyRoundState
-  return $ State currentRound players
+  empty <- emptyRoundState
+  return $ State empty empty players
 
 initializePlayers :: IO Players
 initializePlayers = Players <$> newIORef M.empty
