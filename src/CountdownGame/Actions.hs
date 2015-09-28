@@ -6,6 +6,7 @@ module CountdownGame.Actions
        , postRegister
        , admin
        , getPlayers
+       , getRound
        , isLocalhost
        )where
 
@@ -31,8 +32,8 @@ import Network.Wai (remoteHost)
 
 import CountdownGame.Game
 
-import CountdownGame.PlayersRepository (Players)
 import qualified CountdownGame.PlayersRepository as Rep
+import qualified CountdownGame.Rounds as Rounds
 
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
@@ -55,6 +56,16 @@ postRegister state = do
   Players.registerPlayer name (players state)
   redirect "/play"         
 
+admin :: State -> ActionM ()
+admin state = do
+  players <- liftIO $ Rep.getPlayers (players state)
+  localhost <- isLocalhost
+  if not localhost
+    then redirect "/admin"
+    else render (AdminView.render players)
+
+-- ^ Web-API Part
+
 getPlayers :: State -> ActionM ()
 getPlayers state = do
   players <- liftIO $ Rep.getPlayers (players state)
@@ -63,13 +74,10 @@ getPlayers state = do
     then raise "you are not allowed to do that"
     else json players
 
-admin :: State -> ActionM ()
-admin state = do
-  players <- liftIO $ Rep.getPlayers (players state)
-  localhost <- isLocalhost
-  if not localhost
-    then redirect "/admin"
-    else render (AdminView.render players)
+getRound :: State -> ActionM ()
+getRound state = do
+  round <- liftIO $ Rounds.getRound (currentRound state)
+  json round
 
 render :: Html -> ActionM ()
 render html = do

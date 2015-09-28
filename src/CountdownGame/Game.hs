@@ -7,7 +7,7 @@ module CountdownGame.Game
        , Players (..)
        , PlayersMap
        , Round (..)
-       , RoundState
+       , RoundState (..)
        , State (..)
        , initState
        )where
@@ -46,7 +46,10 @@ data Round =
   Round
   { target  :: Integer
   , numbers :: [Integer]
-  } deriving (Show, Read)    
+  } deriving (Generic, Show)
+
+instance ToJSON Round
+instance FromJSON Round
 
 newtype RoundState = RoundState (IORef (Maybe Round))
 
