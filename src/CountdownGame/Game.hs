@@ -21,8 +21,8 @@ import GHC.Generics (Generic)
 
 import Data.Aeson (ToJSON, FromJSON, toEncoding, genericToEncoding, defaultOptions)
 import Data.Text (Text)
-import Data.Time.Clock (UTCTime)
-
+import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
+import Data.Maybe (isJust)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 
@@ -49,7 +49,23 @@ data Snapshot =
   } deriving (Generic, Show)
 
 takeSnapshot :: State -> IO Snapshot
-takeSnapshot = undefined
+takeSnapshot state = do
+  round <- readRef id $ currentRound state
+  guesses <- readRef id $ playerGuesses state
+  ps <- readRef id $ players state
+  ready <- readRef isJust $ nextRound state
+  now <- getCurrentTime
+  let g = maybe (-1) (target . params) round
+      nrs = maybe [] (numbers . params) round
+      run = isJust round
+      till = maybe now id $ round >>= validTill
+      secs = diffUTCTime till now
+      score = calculateScore ps guesses
+  return $ Snapshot g nrs (not run && ready) run (truncate secs) score
+
+calculateScore :: PlayersMap -> Map PlayerId Int -> [(Text, Integer)]
+calculateScore ps gm = undefined
+  
 
 instance ToJSON Snapshot
 instance FromJSON Snapshot
@@ -77,8 +93,8 @@ instance FromJSON Round
 
 data RoundParam =
   RoundParam
-  { target  :: Integer
-  , numbers :: [Integer]
+  { target  :: Int
+  , numbers :: [Int]
   } deriving (Generic, Show)
 
 instance ToJSON RoundParam
