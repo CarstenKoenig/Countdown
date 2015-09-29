@@ -18,8 +18,7 @@ render _ = html $ do
   script ! A.src "jquery.js" $ text ""
   script ! A.src "knockout.js" $ text ""
   script ! A.src "admin.js" $ text ""
-  body $ do
-    H.div ! A.class_ "Main" $ do
+  body $ H.div ! A.class_ "Main" $ do
       h1 "COUNTdown"
       H.button ! dataBind "click: startRound, enable: canStart" $ "starten.."
       H.div ! A.class_ "Aufgabe" $ do

@@ -20,13 +20,14 @@ module CountdownGame.Game
 import GHC.Generics (Generic)
 
 import Data.Aeson (ToJSON, FromJSON, toEncoding, genericToEncoding, defaultOptions)
+import Data.Function (on)
+import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, fromMaybe)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
-
-import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
+import Data.List (sortBy)
 
 type PlayerId = Integer
 
@@ -45,7 +46,7 @@ data Snapshot =
   , isStartable :: Bool
   , isRunning   :: Bool
   , secondsLeft :: Int
-  , scoreBoard  :: [(Text, Integer)]
+  , scoreBoard  :: [(Text, Int)]
   } deriving (Generic, Show)
 
 takeSnapshot :: State -> IO Snapshot
@@ -58,13 +59,17 @@ takeSnapshot state = do
   let g = maybe (-1) (target . params) round
       nrs = maybe [] (numbers . params) round
       run = isJust round
-      till = maybe now id $ round >>= validTill
+      till = fromMaybe now $ round >>= validTill
       secs = diffUTCTime till now
-      score = calculateScore ps guesses
+      score = calculateScore g ps guesses
   return $ Snapshot g nrs (not run && ready) run (truncate secs) score
 
-calculateScore :: PlayersMap -> Map PlayerId Int -> [(Text, Integer)]
-calculateScore ps gm = undefined
+calculateScore :: Int -> PlayersMap -> Map PlayerId Int -> [(Text, Int)]
+calculateScore g ps gm = sortBy (compare `on` snd) scores
+  where
+    scores = map assocGuess . M.toList $ M.map nickName ps
+    assocGuess (pid, nick) = (nick, maybe 999999 diff $ M.lookup pid gm)
+    diff pg = if g == (-1) then 999999 else abs (g - pg)
   
 
 instance ToJSON Snapshot

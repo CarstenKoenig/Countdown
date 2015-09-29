@@ -17,8 +17,7 @@ import Debug.Trace (trace)
 import Control.Monad.IO.Class(liftIO)
 
 import Data.Char (toLower)
-import Data.Function (on)
-import Data.List(isPrefixOf, sortBy)
+import Data.List(isPrefixOf)
 import Data.Maybe(isNothing, fromJust)
 
 import Data.Text.Lazy (Text, unpack)
@@ -131,10 +130,3 @@ isLocalhost = do
   where hostnameIsLocal sockAdr =
           "127.0.0.1" `isPrefixOf` show sockAdr ||
           "localhost" `isPrefixOf` (map toLower . show) sockAdr
-
-scores :: Integer -> [Player] -> [(PlayerId, Integer)] -> [(T.Text, Integer)]
-scores goal ps gs =
-  sortBy (compare `on` snd) $ map score ps
-  where score p = case lookup (playerId p) gs of
-          Nothing -> (nickName p, 999999)
-          Just v  -> (nickName p, abs (goal - v))

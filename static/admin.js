@@ -5,10 +5,18 @@ function ViewModel() {
 
     self.scores = ko.observableArray();
 
-    self.canStart = ko.computed(function() {
-	var nrs = self.numbers();
-	return !nrs || nrs.length === 0;
-    });
+    self.canStart = ko.observable(false);
+
+    self.queryCanStart = function () {
+	$.get("/api/canStart", null, function(res) {
+	    self.canStart(res);
+	    setTimeout (self.queryCanStart, 500);
+	    }
+	}).fail(function() {
+	    self.canStart(false);
+	    setTimeout (self.queryCanStart, 500);
+	});
+    };
 
     self.queryRound = function () {
 	$.get("/api/round", null, function(res) {
@@ -55,6 +63,7 @@ function ViewModel() {
     };
 
     self.queryRound();
+    self.queryCanStart();
     self.getScores();
 };
 
