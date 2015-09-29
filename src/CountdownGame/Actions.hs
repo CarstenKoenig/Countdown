@@ -7,6 +7,8 @@ module CountdownGame.Actions
        , admin
        , getPlayers
        , getRound
+       , startRound
+       , getScores
        , evalFormula
        , isLocalhost
        )where
@@ -16,10 +18,12 @@ import Debug.Trace (trace)
 import Control.Monad.IO.Class(liftIO)
 
 import Data.Char (toLower)
-import Data.List(isPrefixOf)
+import Data.Function (on)
+import Data.List(isPrefixOf, sortBy)
 import Data.Maybe(isNothing, fromJust)
 
 import Data.Text.Lazy (Text, unpack)
+import qualified Data.Text as T
 
 import Web.Scotty
 import qualified Web.Scotty as S
@@ -34,6 +38,7 @@ import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
 import CountdownGame.Game
+import qualified CountdownGame.Game as G
 
 import qualified CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Rounds as Rounds
@@ -84,10 +89,28 @@ getPlayers state = do
     then raise "you are not allowed to do that"
     else json players
 
+getScores :: State -> ActionM ()
+getScores state = do
+  round <- liftIO $ Rounds.getRound state
+  ps <- liftIO $ Rep.getPlayers (players state)
+  gs <- liftIO $ readRef (\x->x) (guesses state)
+  let goal = maybe (-1) (G.target . G.params) $ round
+  json (scores goal ps gs)
+
 getRound :: State -> ActionM ()
 getRound state = do
   round <- liftIO $ Rounds.getRound state
   json round
+
+startRound :: State -> ActionM ()
+startRound state = do
+  localhost <- isLocalhost
+  if not localhost
+    then raise "you are not allowed to do that"
+    else do
+      liftIO $ Rounds.startRound state
+      getRound state
+  
 
 evalFormula :: State -> ActionM ()
 evalFormula state = do
@@ -119,3 +142,10 @@ isLocalhost = do
   where hostnameIsLocal sockAdr =
           "127.0.0.1" `isPrefixOf` show sockAdr ||
           "localhost" `isPrefixOf` (map toLower . show) sockAdr
+
+scores :: Integer -> [Player] -> [(PlayerId, Integer)] -> [(T.Text, Integer)]
+scores goal ps gs =
+  sortBy (compare `on` snd) $ map score ps
+  where score p = case lookup (playerId p) gs of
+          Nothing -> (nickName p, 999999)
+          Just v  -> (nickName p, abs (goal - v))

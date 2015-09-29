@@ -25,8 +25,8 @@ function ViewModel() {
     self.queryRound = function () {
 	$.get("/api/round", null, function(res) {
 	    if (res) {
-		self.params.numbers(res.numbers);
-		self.params.target(res.target);
+		self.numbers(res.params.numbers);
+		self.target(res.params.target);
 	    } else {
 		setTimeout (self.queryRound, 500);
 	    }

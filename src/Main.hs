@@ -49,5 +49,8 @@ main = do
     get "/admin" $ Actions.admin state
     post "/register" $ Actions.postRegister state
     get "/api/players" $ Actions.getPlayers state
+    get "/api/scores" $ Actions.getScores state
     get "/api/round" $ Actions.getRound state
+    get "/api/start" $ Actions.startRound state
     get "/api/eval/:formula" $ Actions.evalFormula state
+    
