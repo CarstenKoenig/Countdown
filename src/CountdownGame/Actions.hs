@@ -11,6 +11,8 @@ module CountdownGame.Actions
        , isLocalhost
        )where
 
+import Debug.Trace (trace)
+
 import Control.Monad.IO.Class(liftIO)
 
 import Data.Char (toLower)
@@ -35,6 +37,7 @@ import CountdownGame.Game
 
 import qualified CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Rounds as Rounds
+import CountdownGame.Players (registeredPlayer)
 
 import CountdownGame.Algorithm (eval)
 import CountdownGame.Parser (tryParse)
@@ -65,11 +68,11 @@ postRegister state = do
 admin :: State -> ActionM ()
 admin state = do
   players <- liftIO $ Rep.getPlayers (players state)
-  nextRound <- liftIO $ Rounds.getRound (nextRound state)
+  curRound <- liftIO $ Rounds.getRound (currentRound state)
   localhost <- isLocalhost
   if not localhost
     then redirect "/admin"
-    else render (AdminView.render players nextRound)
+    else render (AdminView.render players curRound)
 
 -- * Web-API Part
 
@@ -89,8 +92,9 @@ getRound state = do
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
+  player <- registeredPlayer (players state)
   case (eval <$> tryParse formula) of
-    Just [n]  -> json n
+    Just [n]  -> trace (show player) $ json n
     otherwise -> raise "invalid formula"
 
 -- * Helpers

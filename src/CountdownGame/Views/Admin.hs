@@ -23,7 +23,7 @@ render players nextRound =
       case nextRound of
         Just round -> do
           h3 "Runde"
-          p . text . pack $ show (G.target round)
-          p . text . pack $ show (G.numbers round)
+          p . text . pack $ show (G.target $ G.params round)
+          p . text . pack $ show (G.numbers $ G.params round)
         Nothing ->
           h3 "Warte..."
