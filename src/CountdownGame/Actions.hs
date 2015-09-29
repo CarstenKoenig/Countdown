@@ -68,7 +68,7 @@ postRegister state = do
 admin :: State -> ActionM ()
 admin state = do
   players <- liftIO $ Rep.getPlayers (players state)
-  curRound <- liftIO $ Rounds.getRound (currentRound state)
+  curRound <- liftIO $ Rounds.getRound state
   localhost <- isLocalhost
   if not localhost
     then redirect "/admin"
@@ -86,7 +86,7 @@ getPlayers state = do
 
 getRound :: State -> ActionM ()
 getRound state = do
-  round <- liftIO $ Rounds.getRound (currentRound state)
+  round <- liftIO $ Rounds.getRound state
   json round
 
 evalFormula :: State -> ActionM ()

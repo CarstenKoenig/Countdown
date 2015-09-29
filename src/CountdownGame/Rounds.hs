@@ -2,8 +2,9 @@
 
 module CountdownGame.Rounds
        ( getRound
-       , startGenerateRound
+       , nextRoundParams
        , startRound
+       , startGenerateRound
        )where
 
 import Debug.Trace (trace)
@@ -17,30 +18,30 @@ import CountdownGame.Game
 
 startRound :: State -> IO ()
 startRound state = do
-  next <- getRoundParam (nextRound state)
+  next <- nextRoundParams state
   time <- (30 `addUTCTime`) <$> getCurrentTime
   case next of
     Just n -> do
-      let r = Round n [] (Just time)
+      let r = Round n (Just time)
       modifyRef (const (Just r, ())) (currentRound state)
-      startGenerateRound (nextRound state)
+      startGenerateRound state
     Nothing -> return ()
 
-getRound :: Reference (Maybe Round) -> IO (Maybe Round)
-getRound = readRef id
+getRound :: State -> IO (Maybe Round)
+getRound = readRef id . currentRound
 
-getRoundParam :: Reference (Maybe RoundParam) -> IO (Maybe RoundParam)
-getRoundParam = readRef id
+nextRoundParams :: State -> IO (Maybe RoundParam)
+nextRoundParams = readRef id . nextRound
 
-startGenerateRound :: Reference (Maybe RoundParam) -> IO ()
-startGenerateRound rs = do
-  clearRef rs
+startGenerateRound :: State -> IO ()
+startGenerateRound state = do
+  clearRef (nextRound state)
   _ <- forkIO work
   return ()
   where
     work = do
       newRound <- trace "erzeuge Runde..." gen
-      modifyRef (const (Just newRound, trace "...erzeugt" ())) rs
+      modifyRef (const (Just newRound, trace "...erzeugt" ())) (nextRound state)
     gen :: IO RoundParam
     gen = do
       threadDelay 10000000

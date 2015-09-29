@@ -33,6 +33,7 @@ data State =
   { currentRound :: Reference (Maybe Round)
   , nextRound    :: Reference (Maybe RoundParam)
   , players      :: Players
+  , guesses      :: Reference [(PlayerId,Integer)]
   }
 
 data Player =
@@ -50,7 +51,6 @@ type PlayersMap = Map PlayerId Player
 data Round =
   Round
   { params      :: RoundParam
-  , guesses     :: [(PlayerId,Integer)]
   , runningTill :: Maybe UTCTime
   } deriving (Generic, Show)
 
@@ -73,7 +73,8 @@ initState = do
   players <- initializePlayers
   emptyR <- emptyRoundState
   emptyP <- emptyRoundParamState
-  return $ State emptyR emptyP players
+  gs <- Reference <$> newIORef []
+  return $ State emptyR emptyP players gs
 
 initializePlayers :: IO Players
 initializePlayers = Reference <$> newIORef M.empty
