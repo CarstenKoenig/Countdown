@@ -1,3 +1,36 @@
+body {
+    font-size: 1.8em;
+}
+
 h1 {
     color: blue;
+}
+
+.Main {
+    margin-left: auto;
+    margin-right: auto;
+    
+    padding: 10px;
+    width: 600px;
+}
+
+.Guess {
+    padding: 10px;
+    background: lightgray;
+}
+
+.Guess input {
+    font-size: 1em;
+    padding: 5px;
+}
+
+.Result {
+    font-weight: bold;
+    font-size: 1.3em;
+    color: darkgreen;
+}
+
+.Error {
+    font-weight: bold;
+    color: red;
 }

@@ -50,3 +50,4 @@ main = do
     post "/register" $ Actions.postRegister state
     get "/api/players" $ Actions.getPlayers state
     get "/api/round" $ Actions.getRound state
+    get "/api/eval/:formula" $ Actions.evalFormula state

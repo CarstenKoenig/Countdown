@@ -7,6 +7,7 @@ module CountdownGame.Actions
        , admin
        , getPlayers
        , getRound
+       , evalFormula
        , isLocalhost
        )where
 
@@ -34,6 +35,9 @@ import CountdownGame.Game
 
 import qualified CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Rounds as Rounds
+
+import CountdownGame.Algorithm (eval)
+import CountdownGame.Parser (tryParse)
 
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
@@ -82,14 +86,22 @@ getRound state = do
   round <- liftIO $ Rounds.getRound (currentRound state)
   json round
 
+evalFormula :: State -> ActionM ()
+evalFormula state = do
+  formula <- param "formula"
+  case (eval <$> tryParse formula) of
+    Just [n]  -> json n
+    otherwise -> raise "invalid formula"
+
 -- * Helpers
 
 -- ** rendering
   
 render :: Html -> ActionM ()
 render html = do
-  blaze $ link ! rel "stylesheet" ! href "styles.css" ! type_ "text/css"
-  blaze html
+  blaze $ do
+    link ! rel "stylesheet" ! href "styles.css" ! type_ "text/css"
+    html
   
 blaze :: Html -> ActionM ()
 blaze = S.html . renderHtml
