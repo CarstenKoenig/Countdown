@@ -7,11 +7,12 @@ module CountdownGame.Game
        , Players (..)
        , PlayersMap
        , Round (..)
-       , RoundState (..)
        , RoundParam(..)
-       , RoundParamState(..)
        , State (..)
        , initState
+       , Reference
+       , readRef
+       , modifyRef
        )where
 
 import GHC.Generics (Generic)
@@ -23,14 +24,14 @@ import Data.Time.Clock (UTCTime)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 
-import Data.IORef (IORef(..), newIORef)
+import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
 type PlayerId = Integer
 
 data State =
   State
-  { currentRound :: RoundState
-  , nextRound    :: RoundParamState
+  { currentRound :: Reference (Maybe Round)
+  , nextRound    :: Reference (Maybe RoundParam)
   , players      :: Players
   }
 
@@ -43,7 +44,7 @@ data Player =
 instance ToJSON Player
 instance FromJSON Player
 
-newtype Players = Players (IORef PlayersMap)
+type Players = Reference PlayersMap
 type PlayersMap = Map PlayerId Player
          
 data Round =
@@ -55,8 +56,6 @@ data Round =
 
 instance ToJSON Round
 instance FromJSON Round
-
-newtype RoundState = RoundState (IORef (Maybe Round))
 
 data RoundParam =
   RoundParam
@@ -77,10 +76,18 @@ initState = do
   return $ State emptyR emptyP players
 
 initializePlayers :: IO Players
-initializePlayers = Players <$> newIORef M.empty
+initializePlayers = Reference <$> newIORef M.empty
 
-emptyRoundState :: IO RoundState
-emptyRoundState = RoundState <$> newIORef Nothing
+emptyRoundState :: IO (Reference (Maybe Round))
+emptyRoundState = Reference <$> newIORef Nothing
 
-emptyRoundParamState :: IO RoundParamState
-emptyRoundParamState = RoundParamState <$> newIORef Nothing
+emptyRoundParamState :: IO (Reference (Maybe RoundParam))
+emptyRoundParamState = Reference <$> newIORef Nothing
+
+newtype Reference a = Reference { refOf :: IORef a }
+
+readRef :: (a -> b) -> Reference a -> IO b
+readRef f ref = f <$> readIORef (refOf ref)
+
+modifyRef :: (a -> (a, b)) -> Reference a -> IO b
+modifyRef f ref = atomicModifyIORef' (refOf ref) f

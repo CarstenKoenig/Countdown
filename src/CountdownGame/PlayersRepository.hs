@@ -22,16 +22,10 @@ getPlayers :: Players -> IO [Player]
 getPlayers = readRef getPlayers'
 
 addPlayer :: Text -> Players -> IO Player
-addPlayer nick = useRef (addPlayer' nick)
+addPlayer nick = modifyRef (addPlayer' nick)
 
 updatePlayer :: PlayerId -> Text -> Players -> IO Player
-updatePlayer id nick = useRef (updatePlayer' id nick)
-
-readRef :: (PlayersMap -> a) -> Players -> IO a
-readRef f (Players ref) = f <$> readIORef ref
-
-useRef :: (PlayersMap -> (PlayersMap, a)) -> Players -> IO a
-useRef f (Players ref) = atomicModifyIORef' ref f
+updatePlayer id nick = modifyRef (updatePlayer' id nick)
 
 getPlayers' :: PlayersMap -> [Player]
 getPlayers' = map snd . M.toAscList

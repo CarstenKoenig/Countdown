@@ -22,44 +22,29 @@ startRound state = do
   case next of
     Just n -> do
       let r = Round n [] (Just time)
-      modRef (const (Just r, ())) (currentRound state)
+      modifyRef (const (Just r, ())) (currentRound state)
       startGenerateRound (nextRound state)
     Nothing -> return ()
 
-getRound :: RoundState -> IO (Maybe Round)
+getRound :: Reference (Maybe Round) -> IO (Maybe Round)
 getRound = readRef id
 
-getRoundParam :: RoundParamState -> IO (Maybe RoundParam)
-getRoundParam = readParamRef id
+getRoundParam :: Reference (Maybe RoundParam) -> IO (Maybe RoundParam)
+getRoundParam = readRef id
 
-startGenerateRound :: RoundParamState -> IO ()
+startGenerateRound :: Reference (Maybe RoundParam) -> IO ()
 startGenerateRound rs = do
-  clearParamRef rs
+  clearRef rs
   _ <- forkIO work
   return ()
   where
     work = do
       newRound <- trace "erzeuge Runde..." gen
-      modParamRef (const (Just newRound, trace "...erzeugt" ())) rs
+      modifyRef (const (Just newRound, trace "...erzeugt" ())) rs
     gen :: IO RoundParam
     gen = do
       threadDelay 10000000
       return $ RoundParam 765 [1,3,7,10,25,50]
 
-clearRef :: RoundState -> IO ()
-clearRef = modRef (const (Nothing, ()))
-  
-readRef :: (Maybe Round -> a) -> RoundState -> IO a
-readRef f (RoundState ref) = f <$> readIORef ref
-
-modRef :: (Maybe Round -> (Maybe Round, a)) -> RoundState -> IO a
-modRef f (RoundState ref) = atomicModifyIORef' ref f
-
-clearParamRef :: RoundParamState -> IO ()
-clearParamRef = modParamRef (const (Nothing, ()))
-
-readParamRef :: (Maybe RoundParam -> a) -> RoundParamState -> IO a
-readParamRef f (RoundParamState ref) = f <$> readIORef ref
-
-modParamRef :: (Maybe RoundParam -> (Maybe RoundParam, a)) -> RoundParamState -> IO a
-modParamRef f (RoundParamState ref) = atomicModifyIORef' ref f
+clearRef :: Reference (Maybe a) -> IO ()
+clearRef = modifyRef (const (Nothing, ()))
