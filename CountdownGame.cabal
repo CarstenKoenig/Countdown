@@ -1,10 +1,10 @@
 name:                CountdownGame
 version:             0.1.0.0
-synopsis:            Countdown-Game für den DeveloperOpenSpace 2015
+synopsis:            Countdown-Game fuer den DeveloperOpenSpace 2015
 -- description:         
 license:             MIT
 license-file:        LICENSE
-author:              Carsten König
+author:              Carsten Koenig
 maintainer:          carsten@gettingsharper.de
 -- copyright:           
 category:            Web

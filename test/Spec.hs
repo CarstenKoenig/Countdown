@@ -1,1 +1,8 @@
-{-# OPTIONS_GHC -F -pgmF hspec-discover #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+import Test.Hspec
+import CountdownGame.ParserSpec (spec)
+
+
+main :: IO ()
+main = hspec spec
