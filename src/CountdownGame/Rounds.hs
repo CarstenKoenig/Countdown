@@ -2,6 +2,7 @@
 
 module CountdownGame.Rounds
        ( getRound
+       , isNextRoundReady
        , nextRoundParams
        , startRound
        , startGenerateRound
@@ -10,8 +11,9 @@ module CountdownGame.Rounds
 import Debug.Trace (trace)
 
 import Control.Concurrent (forkIO, threadDelay, ThreadId)
-import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
+import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
+import Data.Maybe (isJust)
 import Data.Time (getCurrentTime, addUTCTime)
 
 import CountdownGame.Game
@@ -29,6 +31,9 @@ startRound state = do
 
 getRound :: State -> IO (Maybe Round)
 getRound = readRef id . currentRound
+
+isNextRoundReady :: State -> IO Bool
+isNextRoundReady state = isJust <$> nextRoundParams state
 
 nextRoundParams :: State -> IO (Maybe RoundParam)
 nextRoundParams = readRef id . nextRound

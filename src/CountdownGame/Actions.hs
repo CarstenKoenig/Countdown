@@ -6,9 +6,8 @@ module CountdownGame.Actions
        , postRegister
        , admin
        , getPlayers
-       , getRound
+       , getSnapshot
        , startRound
-       , getScores
        , evalFormula
        , isLocalhost
        )where
@@ -87,18 +86,10 @@ getPlayers state = do
     then raise "you are not allowed to do that"
     else json players
 
-getScores :: State -> ActionM ()
-getScores state = do
-  round <- liftIO $ Rounds.getRound state
-  ps <- liftIO $ Rep.getPlayers (players state)
-  gs <- liftIO $ readRef (\x->x) (guesses state)
-  let goal = maybe (-1) (G.target . G.params) $ round
-  json (scores goal ps gs)
-
-getRound :: State -> ActionM ()
-getRound state = do
-  round <- liftIO $ Rounds.getRound state
-  json round
+getSnapshot :: State -> ActionM ()
+getSnapshot state = do
+  snap <- liftIO $ takeSnapshot state
+  json snap
 
 startRound :: State -> ActionM ()
 startRound state = do
@@ -107,7 +98,7 @@ startRound state = do
     then raise "you are not allowed to do that"
     else do
       liftIO $ Rounds.startRound state
-      getRound state
+      getSnapshot state
   
 
 evalFormula :: State -> ActionM ()

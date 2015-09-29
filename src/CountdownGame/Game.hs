@@ -10,6 +10,8 @@ module CountdownGame.Game
        , RoundParam(..)
        , State (..)
        , initState
+       , Snapshot
+       , takeSnapshot
        , Reference
        , readRef
        , modifyRef
@@ -30,11 +32,27 @@ type PlayerId = Integer
 
 data State =
   State
-  { currentRound :: Reference (Maybe Round)
-  , nextRound    :: Reference (Maybe RoundParam)
-  , players      :: Players
-  , guesses      :: Reference [(PlayerId,Integer)]
+  { currentRound  :: Reference (Maybe Round)
+  , nextRound     :: Reference (Maybe RoundParam)
+  , players       :: Players
+  , playerGuesses :: Reference (Map PlayerId Int)
   }
+
+data Snapshot =
+  Snapshot
+  { goal         :: Int
+  , availableNrs :: [Int]
+  , isStartable :: Bool
+  , isRunning   :: Bool
+  , secondsLeft :: Int
+  , scoreBoard  :: [(Text, Integer)]
+  } deriving (Generic, Show)
+
+takeSnapshot :: State -> IO Snapshot
+takeSnapshot = undefined
+
+instance ToJSON Snapshot
+instance FromJSON Snapshot
 
 data Player =
   Player
@@ -51,7 +69,7 @@ type PlayersMap = Map PlayerId Player
 data Round =
   Round
   { params      :: RoundParam
-  , runningTill :: Maybe UTCTime
+  , validTill   :: Maybe UTCTime
   } deriving (Generic, Show)
 
 instance ToJSON Round
@@ -73,8 +91,8 @@ initState = do
   players <- initializePlayers
   emptyR <- emptyRoundState
   emptyP <- emptyRoundParamState
-  gs <- Reference <$> newIORef []
-  return $ State emptyR emptyP players gs
+  noGuesses <- Reference <$> newIORef M.empty
+  return $ State emptyR emptyP players noGuesses
 
 initializePlayers :: IO Players
 initializePlayers = Reference <$> newIORef M.empty
