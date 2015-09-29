@@ -13,17 +13,30 @@ import Control.Monad (forM_)
 import CountdownGame.Game
 import qualified CountdownGame.Game as G
 
-render :: [Player] -> Maybe Round -> Html
-render players nextRound =
-  html . body $ do
+render :: State -> Html
+render _ = html $ do
+  script ! A.src "jquery.js" $ text ""
+  script ! A.src "knockout.js" $ text ""
+  script ! A.src "admin.js" $ text ""
+  body $ do
+    H.div ! A.class_ "Main" $ do
       h1 "COUNTdown"
-      h3 "Mitspieler"
-      ul . forM_ players $ \player ->
-        li . text  $ nickName player
-      case nextRound of
-        Just round -> do
-          h3 "Runde"
-          p . text . pack $ show (G.target $ G.params round)
-          p . text . pack $ show (G.numbers $ G.params round)
-        Nothing ->
-          h3 "Warte..."
+      H.button ! dataBind "click: startRound, enable: canStart" $ "starten.."
+      H.div ! A.class_ "Aufgabe" $ do
+        p $ do
+          H.span "Ziel: "
+          H.span ! dataBind "text: target" $ ""
+        p $ do
+          H.span "Zahlen: "
+          H.span ! dataBind "text: numbers" $ ""
+      H.div ! A.class_ "Ergebnisse" $ do
+        H.table $ do
+          H.thead $ do
+            H.td "Spieler"
+            H.td "Diff."
+          H.tr ! dataBind "foreach: scores" $ do
+            H.td ! dataBind "text: name" $ ""
+            H.td ! dataBind "text: diff" $ ""
+      
+dataBind :: AttributeValue -> Attribute
+dataBind = dataAttribute "bind"

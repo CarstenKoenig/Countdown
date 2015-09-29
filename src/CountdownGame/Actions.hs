@@ -72,12 +72,10 @@ postRegister state = do
 
 admin :: State -> ActionM ()
 admin state = do
-  players <- liftIO $ Rep.getPlayers (players state)
-  curRound <- liftIO $ Rounds.getRound state
   localhost <- isLocalhost
   if not localhost
     then redirect "/admin"
-    else render (AdminView.render players curRound)
+    else render (AdminView.render state)
 
 -- * Web-API Part
 

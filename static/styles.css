@@ -24,6 +24,26 @@ h1 {
     padding: 5px;
 }
 
+.Ergebnisse {
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+}
+
+.Ergebnisse table {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1em;
+    padding: 25px;
+    background: lightyellow;
+    width: 400px;
+}
+
+.Ergebnisse thead {
+    font-weight: bold;
+}
+
 .Result {
     font-weight: bold;
     font-size: 1.3em;
@@ -33,4 +53,9 @@ h1 {
 .Error {
     font-weight: bold;
     color: red;
+}
+
+button {
+    margin: 40px;
+    font-size: 1.6em;
 }
