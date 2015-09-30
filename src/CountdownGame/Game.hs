@@ -14,6 +14,7 @@ module CountdownGame.Game
        , takeSnapshot
        , Guess (guessFormula, guessValue, guessDifference, guessInfo)
        , guessFromFormula
+       , setGuess
        , Reference
        , readRef
        , modifyRef
@@ -41,7 +42,7 @@ data State =
   { currentRound  :: Reference (Maybe Round)
   , nextRound     :: Reference (Maybe RoundParam)
   , players       :: Players
-  , playerGuesses :: Reference (Map PlayerId Int)
+  , playerGuesses :: Guesses
   }
 
 -- ** Snapshots: DTO für die Clients
@@ -74,12 +75,12 @@ takeSnapshot state = do
       score = calculateScore g ps guesses
   return $ Snapshot g nrs (not run && ready) run (truncate <$> secs) score
 
-calculateScore :: Maybe Int -> PlayersMap -> Map PlayerId Int -> [(Text, Maybe Int)]
+calculateScore :: Maybe Int -> PlayersMap -> GuessesMap -> [(Text, Maybe Int)]
 calculateScore Nothing ps _ = map (\(_,nick) -> (nick,Nothing)) . M.toList $ M.map nickName ps
 calculateScore (Just g) ps gm = sortBy (compare `on` snd) scores
   where
     scores = map assocGuess . M.toList $ M.map nickName ps
-    assocGuess (pid, nick) = (nick, diff <$> M.lookup pid gm)
+    assocGuess (pid, nick) = (nick, M.lookup pid gm >>= guessDifference)
     diff pg = abs (g - pg)
 
 -- ** Spieler-Versuche für die aktuelle Runde
@@ -92,7 +93,21 @@ data Guess =
   , guessValue      :: Maybe Int
   , guessDifference :: Maybe Int
   , guessInfo       :: Text
-  } deriving (Show)
+  } deriving (Generic, Show)
+
+instance ToJSON Guess
+
+setGuess :: State -> PlayerId -> Text -> IO (Maybe Guess)
+setGuess state pid txt = do
+  rp <- readRef (fmap params) $ currentRound state
+  case rp of
+    Just rp' -> return <$> (modifyRef (assocGuess rp' txt pid) $ playerGuesses state)
+    Nothing  -> return Nothing
+
+assocGuess :: RoundParam -> Text -> PlayerId -> GuessesMap -> (GuessesMap, Guess)
+assocGuess rp txt pid gm =
+  let guess = guessFromFormula rp txt
+  in (M.insert pid guess gm, guess)
 
 guessFromFormula :: RoundParam -> Text -> Guess
 guessFromFormula rp txt =
@@ -116,7 +131,6 @@ data Player =
   } deriving (Generic, Show)
 
 instance ToJSON Player
-instance FromJSON Player
 
 type Players = Reference PlayersMap
 type PlayersMap = Map PlayerId Player
@@ -128,7 +142,6 @@ data Round =
   } deriving (Generic, Show)
 
 instance ToJSON Round
-instance FromJSON Round
 
 data RoundParam =
   RoundParam
@@ -137,7 +150,6 @@ data RoundParam =
   } deriving (Generic, Show)
 
 instance ToJSON RoundParam
-instance FromJSON RoundParam
 
 initState :: IO State
 initState = do

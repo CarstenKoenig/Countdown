@@ -103,10 +103,12 @@ startRound state = do
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
-  player <- registeredPlayer (players state)
-  case (eval <$> tryParse formula) of
-    Just [n]  -> trace (show player) $ json n
-    otherwise -> raise "invalid formula"
+  pid <- fmap playerId <$> registeredPlayer (players state)
+  case pid of
+    Just pid' -> do
+      guess <- liftIO $ setGuess state pid' formula
+      json guess
+    Nothing -> raise "kein Spieler registriert"
 
 -- * Helpers
 
