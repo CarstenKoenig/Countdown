@@ -33,14 +33,17 @@ function ViewModel() {
     };
 
     self.queryState = function () {
-	$.get("/api/current", null, function(res) {
-	    self.setValues(res);
-	    setTimeout (self.queryState, 500);
+	$.ajax({
+	    url: "/api/current", 
+	    cache: false,
+	    success: function(res) {
+		self.setValues(res);
+	    }
 	}).fail(function() {
 	    self.resetValues();
-	    setTimeout (self.queryState, 2000);
 	});
     };
+
 
     self.eval = function () {
 	var f = self.formula();
@@ -57,7 +60,7 @@ function ViewModel() {
 	});
     };
 
-    self.queryState();
+    var timer = $.timer(self.queryState, 500, true);
 };
 
 $(function() {

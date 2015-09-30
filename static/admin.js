@@ -24,7 +24,7 @@ function ViewModel() {
 	    self.isRunning(res.isRunning);
 	    self.secondsLeft(res.secondsLeft);
 	    self.scores(res.scoreBoard.map(function(t) {
-		return { name: t[0], diff: t[1] };
+		return { name: t[0], diff: t[1], formula: t[2] };
 	    }));
 	} else {
 	    self.resetValue();
@@ -32,12 +32,14 @@ function ViewModel() {
     };
 
     self.queryState = function () {
-	$.get("/api/current", null, function(res) {
-	    self.setValues(res);
-	    setTimeout (self.queryState, 500);
+	$.ajax({
+	    url: "/api/current", 
+	    cache: false,
+	    success: function(res) {
+		self.setValues(res);
+	    }
 	}).fail(function() {
 	    self.resetValues();
-	    setTimeout (self.queryState, 2000);
 	});
     };
     
@@ -53,7 +55,7 @@ function ViewModel() {
 	}
     };
 
-    self.queryState();
+    var timer = $.timer(self.queryState, 500, true);
 };
 
 $(function() {

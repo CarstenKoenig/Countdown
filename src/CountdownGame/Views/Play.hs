@@ -13,6 +13,7 @@ import CountdownGame.Game
 render :: Player -> Html
 render player = html $ do
   script ! A.src "jquery.js" $ text ""
+  script ! A.src "jquery.timer.js" $ text ""
   script ! A.src "knockout.js" $ text ""
   script ! A.src "player.js" $ text ""
   body $

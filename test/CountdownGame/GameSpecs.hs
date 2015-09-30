@@ -78,6 +78,6 @@ spec = do
         guessValue guess `shouldBe` Nothing
       it "wird die Differenz nicht gesetzt" $ do
         guessDifference guess `shouldBe` Nothing
-      it "ist die Info 'Formel darf gegebene Zalhen verwenden'" $ do
-        guessInfo guess `shouldBe` "Formel darf gegebene Zalhen verwenden"
+      it "ist die Info 'Formel darf gegebene Zahlen verwenden'" $ do
+        guessInfo guess `shouldBe` "Formel darf gegebene Zahlen verwenden"
         

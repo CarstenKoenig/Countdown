@@ -54,7 +54,7 @@ data Snapshot =
   , isStartable  :: Bool
   , isRunning    :: Bool
   , secondsLeft  :: Maybe Int
-  , scoreBoard   :: [(Text, Maybe Int)]
+  , scoreBoard   :: [(Text, Maybe Int, Maybe Text)]
   } deriving (Generic, Show)
 
 instance ToJSON Snapshot
@@ -72,16 +72,18 @@ takeSnapshot state = do
       till = rd >>= validTill
       secs = (`diffUTCTime` now) <$> till
       run = isJust rd && fromMaybe (-1) secs > 0
-      score = calculateScore g ps guesses
+      score = calculateScore (not run) g ps guesses
   return $ Snapshot g nrs (not run && ready) run (truncate <$> secs) score
 
-calculateScore :: Maybe Int -> PlayersMap -> GuessesMap -> [(Text, Maybe Int)]
-calculateScore Nothing ps _ = map (\(_,nick) -> (nick,Nothing)) . M.toList $ M.map nickName ps
-calculateScore (Just g) ps gm = sortBy (compare `on` snd) scores
+calculateScore :: Bool -> Maybe Int -> PlayersMap -> GuessesMap -> [(Text, Maybe Int, Maybe Text)]
+calculateScore _ Nothing ps _ = map (\(_,nick) -> (nick, Nothing, Nothing)) . M.toList $ M.map nickName ps
+calculateScore running (Just g) ps gm = sortBy (compare `on` (\(_,a,_) -> a)) scores
   where
     scores = map assocGuess . M.toList $ M.map nickName ps
-    assocGuess (pid, nick) = (nick, M.lookup pid gm >>= guessDifference)
-    diff pg = abs (g - pg)
+    assocGuess (pid, nick) = (nick, diff, form)
+      where diff  = guess >>= guessDifference
+            form  = if running then guessFormula <$> guess else Nothing
+            guess = M.lookup pid gm
 
 -- ** Spieler-Versuche für die aktuelle Runde
     
@@ -115,7 +117,7 @@ guessFromFormula rp txt =
     Nothing -> Guess txt Nothing Nothing "Syntaxfehler in Formel"
     Just ex -> if values ex `isSubsetOf` numbers rp
                then mapValue $ eval ex
-               else Guess txt Nothing Nothing "Formel darf gegebene Zalhen verwenden"
+               else Guess txt Nothing Nothing "Formel darf gegebene Zahlen verwenden"
   where
     mapValue []  = Guess txt Nothing Nothing "Formel enthaelt ungueltige Terme"
     mapValue [v] = Guess txt (Just v) (Just $ dif v) "OK"

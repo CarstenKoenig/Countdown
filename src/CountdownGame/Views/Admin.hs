@@ -16,6 +16,7 @@ import qualified CountdownGame.Game as G
 render :: State -> Html
 render _ = html $ do
   script ! A.src "jquery.js" $ text ""
+  script ! A.src "jquery.timer.js" $ text ""
   script ! A.src "knockout.js" $ text ""
   script ! A.src "admin.js" $ text ""
   body $ H.div ! A.class_ "Main" $ do
@@ -35,9 +36,12 @@ render _ = html $ do
           H.thead $ do
             H.td "Spieler"
             H.td "Diff."
-          H.tr ! dataBind "foreach: scores" $ do
-            H.td ! dataBind "text: name" $ ""
-            H.td ! dataBind "text: diff" $ ""
+            H.td "Formel"
+          H.tbody ! dataBind "foreach: scores" $
+            H.tr $ do
+              H.td ! dataBind "text: name" $ ""
+              H.td ! dataBind "text: diff" $ ""
+              H.td ! dataBind "text: formula" $ ""
       
 dataBind :: AttributeValue -> Attribute
 dataBind = dataAttribute "bind"

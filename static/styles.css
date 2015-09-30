@@ -11,7 +11,7 @@ h1 {
     margin-right: auto;
     
     padding: 10px;
-    width: 600px;
+    width: 800px;
 }
 
 .Guess {
@@ -26,18 +26,13 @@ h1 {
 
 .Ergebnisse {
     padding: 10px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 600px;
 }
 
 .Ergebnisse table {
-    margin-left: auto;
-    margin-right: auto;
     font-size: 1em;
     padding: 25px;
     background: lightyellow;
-    width: 400px;
+    width: 700px;
 }
 
 .Ergebnisse thead {
