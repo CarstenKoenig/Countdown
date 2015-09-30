@@ -32,8 +32,9 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.List (sortBy)
 
-import CountdownGame.Algorithm (eval, values, isSubsetOf)
-import CountdownGame.Parser (tryParse)
+import Countdown.Expressions (eval, values)
+import Countdown.Lists (isSubsetOf)
+import Countdown.Parser (tryParse)
 
 type PlayerId = Integer
 

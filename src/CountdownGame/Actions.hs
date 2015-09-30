@@ -42,9 +42,6 @@ import qualified CountdownGame.PlayersRepository as Rep
 import qualified CountdownGame.Rounds as Rounds
 import CountdownGame.Players (registeredPlayer)
 
-import CountdownGame.Algorithm (eval)
-import CountdownGame.Parser (tryParse)
-
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView

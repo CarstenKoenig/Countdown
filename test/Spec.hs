@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Test.Hspec
-import qualified CountdownGame.ParserSpec as Parser
+import qualified Countdown.ParserSpec as Parser
 import qualified CountdownGame.GameSpecs as Game
 
 

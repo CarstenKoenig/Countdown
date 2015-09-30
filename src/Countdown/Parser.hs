@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CountdownGame.Parser
+module Countdown.Parser
        ( tryParse
        )where
 
 import Data.Text (Text)
-import CountdownGame.Algorithm
+import Countdown.Expressions
 
 import Text.Parsec
 

@@ -1,16 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module CountdownGame.Algorithm
+module Countdown.Expressions
        ( Operand (..)
        , Expression (..)
        , isValidOp
        , apply
        , values
        , eval
-       , isSubsetOf
        )where
-
-import Data.List (delete)
 
 data Operand
   = Add | Sub | Mul | Div
@@ -40,8 +37,3 @@ values (Apply _ x y) = values x ++ values y
 eval :: Expression -> [Int]
 eval (Value n)      = [ n | n > 0 ]
 eval (Apply op x y) = [ apply op a b | a <- eval x, b <- eval y, isValidOp op a b ]
-
-isSubsetOf :: Eq a => [a] -> [a] -> Bool
-isSubsetOf [] _ = True
-isSubsetOf _ [] = False
-isSubsetOf (x:xs) ys = x `elem` ys && xs `isSubsetOf` (delete x ys)
