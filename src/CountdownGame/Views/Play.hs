@@ -16,29 +16,48 @@ render player = html $ do
   script ! A.src "jquery.timer.js" $ text ""
   script ! A.src "knockout.js" $ text ""
   script ! A.src "player.js" $ text ""
-  body $
+  body $ do
+    H.div ! A.class_ "overlay" ! dataBind "visible: gotBusted" $ do
+      H.div ! A.class_ "centerMessage" $ do
+        h1 "damn it.."
+        H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
+      
     H.div ! A.class_ "Main" $ do
       h1 "COUNTdown"
       h3 . text $  "Hallo " `append` nickName player
-  
-      H.div ! A.class_ "Guess" $ do
+
+      H.div ! A.class_ "Aufgabe" $ do
         p $ do
           H.span "Ziel: "
           H.span ! dataBind "text: goal" $ ""
         p $ do
           H.span "Zahlen: "
           H.span ! dataBind "text: numbers" $ ""
-        p $ do
-          H.span "Dein Versuch: "
-          H.span ! A.class_ "Result" ! dataBind "text: result" $ ""
         H.div ! A.class_ "Countdown" ! dataBind "visible: isRunning" $ do
           p ! dataBind "text: secondsLeft" $ ""
+  
+      H.div ! A.class_ "Guess" $ do
+        p $ do
+          H.span "letztes Ergebnis: "
+          H.span ! A.class_ "Result" ! dataBind "text: result" $ ""
         H.div ! A.class_ "FormulaInput" ! dataBind "visible: isRunning" $ do
-          p "Deine Formel:"
+          p "dein Loesungsvorschlag: "
           H.form $ do
             H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
             H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
-          p ! A.class_ "Error" ! dataBind "text: error" $ ""
+
+      H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
+        H.table $ do
+          H.thead $ do
+            H.td "Spieler"
+            H.td "Diff."
+          H.tbody ! dataBind "foreach: scores" $
+            H.tr $ do
+              H.td ! dataBind "text: name" $ ""
+              H.td ! dataBind "text: diff" $ ""
+
+      H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
+         
       
 dataBind :: AttributeValue -> Attribute
 dataBind = dataAttribute "bind"

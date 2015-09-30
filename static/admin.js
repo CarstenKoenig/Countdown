@@ -32,14 +32,17 @@ function ViewModel() {
     };
 
     self.queryState = function () {
+	timer.pause();
 	$.ajax({
 	    url: "/api/current", 
 	    cache: false,
 	    success: function(res) {
 		self.setValues(res);
+		timer.play();
 	    }
 	}).fail(function() {
 	    self.resetValues();
+	    timer.play();
 	});
     };
     

@@ -38,7 +38,7 @@ main = do
   state <- initState
   C.startGeneration state
   scotty 8080 $ do
-    middleware logStdoutDev
+    -- middleware logStdoutDev
     middleware $ staticPolicy (noDots >-> addBase "static")
     get "/" $ do
       localHost <- Actions.isLocalhost

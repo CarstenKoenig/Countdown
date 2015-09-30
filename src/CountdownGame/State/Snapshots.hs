@@ -36,8 +36,8 @@ data Snapshot =
 
 instance ToJSON Snapshot
 
-takeSnapshot :: State -> IO Snapshot
-takeSnapshot state = do
+takeSnapshot :: Bool -> State -> IO Snapshot
+takeSnapshot isAdmin state = do
   rd <- readRef id $ currentRound state
   atts <- readRef id $ playerAttempts state
   ps <- readRef id $ players state
@@ -48,16 +48,16 @@ takeSnapshot state = do
       till = rd >>= validTill
       secs = (`diffUTCTime` now) <$> till
       run = isJust rd && fromMaybe (-1) secs > 0
-      score = calculateScore (not run) goal ps atts
+      score = calculateScore (not run && isAdmin) goal ps atts
   return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) score
 
 calculateScore :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [(Text, Maybe Int, Maybe Text)]
 calculateScore _ Nothing ps _ = map (\(_,nick) -> (nick, Nothing, Nothing)) . M.toList $ M.map nickName ps
-calculateScore running (Just g) ps gm = sortBy (compare `on` (\(_,a,_) -> a)) scores
+calculateScore inclFormula (Just g) ps gm = sortBy (compare `on` (\(_,a,_) -> a)) scores
   where
     scores = map assocGuess . M.toList $ M.map nickName ps
     assocGuess (pid, nick) = (nick, diff, form)
       where diff  = guess >>= difference
-            form  = if running then formula <$> guess else Nothing
+            form  = if inclFormula then formula <$> guess else Nothing
             guess = M.lookup pid gm
 

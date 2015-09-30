@@ -18,7 +18,7 @@ import Control.Monad.IO.Class(liftIO)
 
 import Data.Char (toLower)
 import Data.List(isPrefixOf)
-import Data.Maybe(isNothing, fromJust)
+import Data.Maybe(isNothing, fromJust, isJust)
 
 import Data.Text.Lazy (Text, unpack)
 import qualified Data.Text as T
@@ -69,7 +69,7 @@ admin :: State -> ActionM ()
 admin state = do
   localhost <- isLocalhost
   if not localhost
-    then redirect "/admin"
+    then raise "you are not allowed"
     else render (AdminView.render state)
 
 -- * Web-API Part
@@ -84,8 +84,13 @@ getPlayers state = do
 
 getSnapshot :: State -> ActionM ()
 getSnapshot state = do
-  snap <- liftIO $ takeSnapshot state
-  json snap
+  isHost <- isLocalhost
+  regPlayer <- isJust <$> registeredPlayer (players state)
+  if not isHost && not regPlayer
+    then raise "you are not allowed to do that"
+    else do
+      snap <- liftIO $ takeSnapshot isHost state
+      json snap
 
 startRound :: State -> ActionM ()
 startRound state = do
