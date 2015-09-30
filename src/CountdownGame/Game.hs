@@ -12,6 +12,8 @@ module CountdownGame.Game
        , initState
        , Snapshot
        , takeSnapshot
+       , Guess (guessFormula, guessValue, guessDifference, guessInfo)
+       , guessFromFormula
        , Reference
        , readRef
        , modifyRef
@@ -24,10 +26,13 @@ import Data.Function (on)
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime, getCurrentTime, diffUTCTime)
-import Data.Maybe (isJust, fromMaybe)
+import Data.Maybe (isJust, fromMaybe, listToMaybe)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.List (sortBy)
+
+import CountdownGame.Algorithm (eval, values, isSubsetOf)
+import CountdownGame.Parser (tryParse)
 
 type PlayerId = Integer
 
@@ -39,6 +44,8 @@ data State =
   , playerGuesses :: Reference (Map PlayerId Int)
   }
 
+-- ** Snapshots: DTO für die Clients
+
 data Snapshot =
   Snapshot
   { goal         :: Maybe Int
@@ -49,18 +56,21 @@ data Snapshot =
   , scoreBoard   :: [(Text, Maybe Int)]
   } deriving (Generic, Show)
 
+instance ToJSON Snapshot
+instance FromJSON Snapshot
+
 takeSnapshot :: State -> IO Snapshot
 takeSnapshot state = do
-  round <- readRef id $ currentRound state
+  rd <- readRef id $ currentRound state
   guesses <- readRef id $ playerGuesses state
   ps <- readRef id $ players state
   ready <- readRef isJust $ nextRound state
   now <- getCurrentTime
-  let g = target . params <$> round
-      nrs = maybe [] (numbers . params) round
-      till = round >>= validTill
+  let g = target . params <$> rd
+      nrs = maybe [] (numbers . params) rd
+      till = rd >>= validTill
       secs = (`diffUTCTime` now) <$> till
-      run = isJust round && fromMaybe (-1) secs > 0
+      run = isJust rd && fromMaybe (-1) secs > 0
       score = calculateScore g ps guesses
   return $ Snapshot g nrs (not run && ready) run (truncate <$> secs) score
 
@@ -71,10 +81,33 @@ calculateScore (Just g) ps gm = sortBy (compare `on` snd) scores
     scores = map assocGuess . M.toList $ M.map nickName ps
     assocGuess (pid, nick) = (nick, diff <$> M.lookup pid gm)
     diff pg = abs (g - pg)
-  
 
-instance ToJSON Snapshot
-instance FromJSON Snapshot
+-- ** Spieler-Versuche für die aktuelle Runde
+    
+type Guesses = Reference GuessesMap
+type GuessesMap = Map PlayerId Guess
+data Guess =
+  Guess
+  { guessFormula    :: Text
+  , guessValue      :: Maybe Int
+  , guessDifference :: Maybe Int
+  , guessInfo       :: Text
+  } deriving (Show)
+
+guessFromFormula :: RoundParam -> Text -> Guess
+guessFromFormula rp txt =
+  case tryParse txt of
+    Nothing -> Guess txt Nothing Nothing "Syntaxfehler in Formel"
+    Just ex -> if values ex `isSubsetOf` numbers rp
+               then mapValue $ eval ex
+               else Guess txt Nothing Nothing "Formel darf gegebene Zalhen verwenden"
+  where
+    mapValue []  = Guess txt Nothing Nothing "Formel enthaelt ungueltige Terme"
+    mapValue [v] = Guess txt (Just v) (Just $ dif v) "OK"
+    mapValue _   = error "kein eindeutiges Ergebnis"
+    dif v' = abs (target rp - v')
+
+-- ** Spieler
 
 data Player =
   Player
@@ -106,15 +139,13 @@ data RoundParam =
 instance ToJSON RoundParam
 instance FromJSON RoundParam
 
-newtype RoundParamState = RoundParamState (IORef (Maybe RoundParam))
-
 initState :: IO State
 initState = do
-  players <- initializePlayers
+  ps <- initializePlayers
   emptyR <- emptyRoundState
   emptyP <- emptyRoundParamState
   noGuesses <- Reference <$> newIORef M.empty
-  return $ State emptyR emptyP players noGuesses
+  return $ State emptyR emptyP ps noGuesses
 
 initializePlayers :: IO Players
 initializePlayers = Reference <$> newIORef M.empty

@@ -1,8 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Test.Hspec
-import CountdownGame.ParserSpec (spec)
+import qualified CountdownGame.ParserSpec as Parser
+import qualified CountdownGame.GameSpecs as Game
 
 
 main :: IO ()
-main = hspec spec
+main = hspec $ do
+  Parser.spec
+  Game.spec
