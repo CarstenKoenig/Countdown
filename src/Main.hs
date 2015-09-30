@@ -25,17 +25,18 @@ import Network.Wai (remoteHost)
 import Network.Wai.Middleware.RequestLogger (logStdoutDev)
 import Network.Wai.Middleware.Static (staticPolicy, noDots, (>->), addBase)
 
-import CountdownGame.Game
-import qualified CountdownGame.Rounds as Rounds
 import qualified CountdownGame.Actions as Actions
 import qualified CountdownGame.Cookies as Cookies
 
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
+import CountdownGame.State (initState)
+import qualified CountdownGame.State.Challanges as C
+
 main :: IO ()
 main = do
   state <- initState
-  Rounds.startGenerateRound state
+  C.startGeneration state
   scotty 8080 $ do
     middleware logStdoutDev
     middleware $ staticPolicy (noDots >-> addBase "static")

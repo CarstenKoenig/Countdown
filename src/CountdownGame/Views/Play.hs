@@ -8,7 +8,7 @@ import Text.Blaze.Html5.Attributes
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
-import CountdownGame.Game
+import Countdown.Game.Players (Player, nickName)
 
 render :: Player -> Html
 render player = html $ do

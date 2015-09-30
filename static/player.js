@@ -49,11 +49,11 @@ function ViewModel() {
 	var f = self.formula();
 	self.error("");
 	self.result("");
-	$.get("/api/eval/" + encodeURIComponent(f), null, function(guess) {
-	    if (guess.guessInfo != "OK") {
-		self.error(guess.guessInfo);
+	$.get("/api/eval/" + encodeURIComponent(f), null, function(res) {
+	    if (res.info != "OK") {
+		self.error(res.info);
 	    } else {
-		self.result(guess.guessValue);
+		self.result(res.value);
 	    }
 	}).fail(function() {
 	    self.error("invalide Formel");

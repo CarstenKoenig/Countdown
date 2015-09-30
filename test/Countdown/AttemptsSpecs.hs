@@ -68,8 +68,8 @@ spec = do
         value attmpt `shouldBe` Nothing
       it "wird die Differenz nicht gesetzt" $ do
         difference attmpt `shouldBe` Nothing
-      it "ist die Info 'Formel darf gegebene Zahlen verwenden'" $ do
-        info attmpt `shouldBe` "Formel darf gegebene Zahlen verwenden"
+      it "ist die Info 'Formel darf nur die gegebenen Zahlen verwenden'" $ do
+        info attmpt `shouldBe` "Formel darf nur die gegebenen Zahlen verwenden"
     context "und die Formel vorgegebene Zahlen zu oft enthaelt" $ do
       let playerAttempt = "25+25*25"
           attmpt = attemptFromFormula challange playerAttempt
@@ -79,6 +79,6 @@ spec = do
         value attmpt `shouldBe` Nothing
       it "wird die Differenz nicht gesetzt" $ do
         difference attmpt `shouldBe` Nothing
-      it "ist die Info 'Formel darf gegebene Zahlen verwenden'" $ do
-        info attmpt `shouldBe` "Formel darf gegebene Zahlen verwenden"
+      it "ist die Info 'Formel darf nur die gegebenen Zahlen verwenden'" $ do
+        info attmpt `shouldBe` "Formel darf nur die gegebenen Zahlen verwenden"
         

@@ -45,7 +45,7 @@ attemptFromFormula ch txt =
     Nothing -> Attempt txt Nothing Nothing "Syntaxfehler in Formel"
     Just ex -> if values ex `isSubsetOf` availableNumbers ch
                then mapValue $ eval ex
-               else Attempt txt Nothing Nothing "Formel darf gegebene Zahlen verwenden"
+               else Attempt txt Nothing Nothing "Formel darf nur die gegebenen Zahlen verwenden"
   where
     mapValue []  = Attempt txt Nothing Nothing "Formel enthaelt ungueltige Terme"
     mapValue [v] = Attempt txt (Just v) (Just $ dif v) "OK"

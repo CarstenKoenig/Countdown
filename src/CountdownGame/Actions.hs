@@ -35,12 +35,12 @@ import Text.Blaze.Html5.Attributes
 import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
-import CountdownGame.Game
-import qualified CountdownGame.Game as G
+import Countdown.Game.Players (PlayerId, playerId)
 
-import qualified CountdownGame.PlayersRepository as Rep
-import qualified CountdownGame.Rounds as Rounds
+import CountdownGame.State (State (..), takeSnapshot, setAttempt)
 import CountdownGame.Players (registeredPlayer)
+import qualified CountdownGame.PlayersRepository as Rep
+import qualified CountdownGame.State.Rounds as Rounds
 
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
@@ -93,7 +93,7 @@ startRound state = do
   if not localhost
     then raise "you are not allowed to do that"
     else do
-      liftIO $ Rounds.startRound state
+      liftIO $ Rounds.startNext state
       getSnapshot state
   
 
@@ -103,7 +103,7 @@ evalFormula state = do
   pid <- fmap playerId <$> registeredPlayer (players state)
   case pid of
     Just pid' -> do
-      guess <- liftIO $ setGuess state pid' formula
+      guess <- liftIO $ setAttempt state pid' formula
       json guess
     Nothing -> raise "kein Spieler registriert"
 

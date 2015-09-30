@@ -10,8 +10,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 import Control.Monad (forM_)
 
-import CountdownGame.Game
-import qualified CountdownGame.Game as G
+import CountdownGame.State
 
 render :: State -> Html
 render _ = html $ do
