@@ -35,7 +35,6 @@ data Snapshot =
   } deriving (Generic, Show)
 
 instance ToJSON Snapshot
-instance FromJSON Snapshot
 
 takeSnapshot :: State -> IO Snapshot
 takeSnapshot state = do

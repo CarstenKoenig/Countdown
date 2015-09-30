@@ -16,7 +16,8 @@ library
   exposed-modules:     Countdown.Expressions
                      , Countdown.Parser
                      , Countdown.Lists
-                     , Countdown.Game.Players
+                     , Countdown.Game
+  other-modules:       Countdown.Game.Players
                      , Countdown.Game.Challanges
                      , Countdown.Game.Attempts
   -- other-modules:       
