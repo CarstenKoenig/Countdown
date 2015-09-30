@@ -20,19 +20,24 @@ render player = html $ do
       h1 "COUNTdown"
       h3 . text $  "Hallo " `append` nickName player
   
-      H.div ! A.class_ "Guess" ! dataBind "visible: inputVisible" $ do
+      H.div ! A.class_ "Guess" $ do
         p $ do
           H.span "Ziel: "
-          H.span ! dataBind "text: target" $ ""
+          H.span ! dataBind "text: goal" $ ""
         p $ do
           H.span "Zahlen: "
           H.span ! dataBind "text: numbers" $ ""
-        p "Deine Formel:"
-        H.form $ do
-          H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
-          H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
-        p ! A.class_ "Result" ! dataBind "text: result" $ ""
-        p ! A.class_ "Error" ! dataBind "text: error" $ ""
+        p $ do
+          H.span "Dein Versuch: "
+          H.span ! A.class_ "Result" ! dataBind "text: result" $ ""
+        H.div ! A.class_ "Countdown" ! dataBind "visible: isRunning" $ do
+          p ! dataBind "text: secondsLeft" $ ""
+        H.div ! A.class_ "FormulaInput" ! dataBind "visible: isRunning" $ do
+          p "Deine Formel:"
+          H.form $ do
+            H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
+            H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
+          p ! A.class_ "Error" ! dataBind "text: error" $ ""
       
 dataBind :: AttributeValue -> Attribute
 dataBind = dataAttribute "bind"

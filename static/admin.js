@@ -1,70 +1,59 @@
 function ViewModel() {
     var self = this;
+    self.goal = ko.observable(null);
     self.numbers = ko.observableArray();
-    self.target = ko.observable(0);
-
+    self.isStartable = ko.observable(false);
+    self.isRunning = ko.observable(false);
+    self.secondsLeft = ko.observable(null);
     self.scores = ko.observableArray();
 
-    self.canStart = ko.observable(false);
-
-    self.queryCanStart = function () {
-	$.get("/api/canStart", null, function(res) {
-	    self.canStart(res);
-	    setTimeout (self.queryCanStart, 500);
-	    }
-	}).fail(function() {
-	    self.canStart(false);
-	    setTimeout (self.queryCanStart, 500);
-	});
+    self.resetValues = function() {
+	self.goal(null);
+	self.numbers.removeAll();
+	self.isStartable(false);
+	self.isRunning(false);
+	self.secondsLeft(null);
+	self.scores.removeAll();
     };
 
-    self.queryRound = function () {
-	$.get("/api/round", null, function(res) {
-	    if (res) {
-		self.numbers(res.params.numbers);
-		self.target(res.params.target);
-	    } else {
-		setTimeout (self.queryRound, 500);
-	    }
+    self.setValues = function(res) {
+	if (res) {
+	    self.goal(res.goal);
+	    self.numbers(res.availableNrs);
+	    self.isStartable(res.isStartable);
+	    self.isRunning(res.isRunning);
+	    self.secondsLeft(res.secondsLeft);
+	    self.scores(res.scoreBoard.map(function(t) {
+		return { name: t[0], diff: t[1] };
+	    }));
+	} else {
+	    self.resetValue();
+	}
+    };
+
+    self.queryState = function () {
+	$.get("/api/current", null, function(res) {
+	    self.setValues(res);
+	    setTimeout (self.queryState, 500);
 	}).fail(function() {
-	    self.numbers.removeAll();
-	    self.target(0);
-	    setTimeout (self.queryRound, 500);
+	    self.resetValues();
+	    setTimeout (self.queryState, 2000);
 	});
     };
     
     self.startRound = function () {
-	if (!self.canStart()) { 
+	if (!self.isStartable()) {
 	    return; 
 	} else {
 	    $.post("/api/start", null, function(res) {
-		if (res) {
-		    self.numbers(res.params.numbers);
-		    self.target(res.params.target);
-		}
+		self.setValues(res);
 	    }).fail(function() {
-		self.numbers.removeAll();
-		self.target(0);
+		self.resetValues();
 	    })
 	}
     };
 
-    self.getScores = function () {
-	$.get("/api/scores", null, function(res) {
-	    if (res) {
-		self.scores(res.map(function(t) { 
-		    return {name: t[0], diff: t[1]}; 
-		}));
-	    };
-	    setTimeout (self.getScores, 1000);
-	}).fail(function() {
-	    setTimeout (self.getScores, 1000);
-	});
-    };
-
-    self.queryRound();
-    self.queryCanStart();
-    self.getScores();
+    self.queryState();
 };
 
 $(function() {

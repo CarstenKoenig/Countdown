@@ -1,15 +1,46 @@
 function ViewModel() {
     var self = this;
+    self.goal = ko.observable(null);
+    self.numbers = ko.observableArray();
+    self.isRunning = ko.observable(false);
+    self.secondsLeft = ko.observable(null);
+
     self.formula = ko.observable("");
     self.result = ko.observable(0);
     self.error = ko.observable("");
 
-    self.numbers = ko.observableArray([]);
-    self.target = ko.observable(0);
+    self.resetValues = function() {
+	self.goal(null);
+	self.numbers.removeAll();
+	self.isRunning(false);
+	self.secondsLeft(null);
+    };
 
-    self.inputVisible = ko.computed(function() {
-	return self.numbers().length > 0;
-    });
+    self.setValues = function(res) {
+	if (res) {
+	    self.goal(res.goal);
+	    self.numbers(res.availableNrs);
+	    self.isRunning(res.isRunning);
+	    self.secondsLeft(res.secondsLeft);
+
+	    if (!self.isRunning()) {
+		self.formula("");
+		self.error("");
+	    }
+	} else {
+	    self.resetValue();
+	}
+    };
+
+    self.queryState = function () {
+	$.get("/api/current", null, function(res) {
+	    self.setValues(res);
+	    setTimeout (self.queryState, 500);
+	}).fail(function() {
+	    self.resetValues();
+	    setTimeout (self.queryState, 2000);
+	});
+    };
 
     self.eval = function () {
 	var f = self.formula();
@@ -22,22 +53,7 @@ function ViewModel() {
 	});
     };
 
-    self.queryRound = function () {
-	$.get("/api/round", null, function(res) {
-	    if (res) {
-		self.numbers(res.params.numbers);
-		self.target(res.params.target);
-	    } else {
-		setTimeout (self.queryRound, 500);
-	    }
-	}).fail(function() {
-	    self.numbers.removeAll();
-	    self.target(0);
-	    setTimeout (self.queryRound, 500);
-	});
-    };
-    
-    self.queryRound();
+    self.queryState();
 };
 
 $(function() {

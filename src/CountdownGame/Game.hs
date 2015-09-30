@@ -41,12 +41,12 @@ data State =
 
 data Snapshot =
   Snapshot
-  { goal         :: Int
+  { goal         :: Maybe Int
   , availableNrs :: [Int]
-  , isStartable :: Bool
-  , isRunning   :: Bool
-  , secondsLeft :: Int
-  , scoreBoard  :: [(Text, Int)]
+  , isStartable  :: Bool
+  , isRunning    :: Bool
+  , secondsLeft  :: Maybe Int
+  , scoreBoard   :: [(Text, Maybe Int)]
   } deriving (Generic, Show)
 
 takeSnapshot :: State -> IO Snapshot
@@ -56,20 +56,21 @@ takeSnapshot state = do
   ps <- readRef id $ players state
   ready <- readRef isJust $ nextRound state
   now <- getCurrentTime
-  let g = maybe (-1) (target . params) round
+  let g = target . params <$> round
       nrs = maybe [] (numbers . params) round
-      run = isJust round
-      till = fromMaybe now $ round >>= validTill
-      secs = diffUTCTime till now
+      till = round >>= validTill
+      secs = (`diffUTCTime` now) <$> till
+      run = isJust round && fromMaybe (-1) secs > 0
       score = calculateScore g ps guesses
-  return $ Snapshot g nrs (not run && ready) run (truncate secs) score
+  return $ Snapshot g nrs (not run && ready) run (truncate <$> secs) score
 
-calculateScore :: Int -> PlayersMap -> Map PlayerId Int -> [(Text, Int)]
-calculateScore g ps gm = sortBy (compare `on` snd) scores
+calculateScore :: Maybe Int -> PlayersMap -> Map PlayerId Int -> [(Text, Maybe Int)]
+calculateScore Nothing ps _ = map (\(_,nick) -> (nick,Nothing)) . M.toList $ M.map nickName ps
+calculateScore (Just g) ps gm = sortBy (compare `on` snd) scores
   where
     scores = map assocGuess . M.toList $ M.map nickName ps
-    assocGuess (pid, nick) = (nick, maybe 999999 diff $ M.lookup pid gm)
-    diff pg = if g == (-1) then 999999 else abs (g - pg)
+    assocGuess (pid, nick) = (nick, diff <$> M.lookup pid gm)
+    diff pg = abs (g - pg)
   
 
 instance ToJSON Snapshot
