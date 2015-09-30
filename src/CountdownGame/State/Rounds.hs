@@ -15,7 +15,7 @@ import Data.Time (getCurrentTime, addUTCTime)
 
 import CountdownGame.State.Challanges
 import CountdownGame.References
-import CountdownGame.State
+import CountdownGame.State.Definitions (State (currentRound), Round (Round))
 
 startNext :: State -> IO ()
 startNext state = do

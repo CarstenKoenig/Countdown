@@ -14,7 +14,8 @@ import Data.Time (getCurrentTime, addUTCTime)
 
 import Countdown.Game.Challanges (Challange(..))
 import CountdownGame.References
-import CountdownGame.State
+import CountdownGame.State.Definitions (State, nextChallange)
+
 
 isNextReady :: State -> IO Bool
 isNextReady state = isJust <$> getNext state
