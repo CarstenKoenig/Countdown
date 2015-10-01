@@ -6,7 +6,7 @@ import Data.Char (toLower)
 import Data.List(isPrefixOf)
 import Data.Maybe(isJust)
 
-import Data.Text.Lazy (Text, unpack)
+import Data.Text (Text, unpack)
 
 import Web.Scotty
 import qualified Web.Scotty as S
@@ -31,10 +31,12 @@ import qualified CountdownGame.Cookies as Cookies
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
 import CountdownGame.State (initState)
+import CountdownGame.Database (initializeDatabase)
 import qualified CountdownGame.State.Challanges as C
 
 main :: IO ()
 main = do
+  initializeDatabase
   state <- initState
   C.startGeneration state
   scotty 8080 $ do

@@ -2,8 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module CountdownGame.State.Definitions
-       ( Players
-       , Round (..)
+       ( Round (..)
        , State (..)
        )where
 
@@ -21,11 +20,8 @@ data State =
   State
   { currentRound   :: Reference (Maybe Round)
   , nextChallange  :: Reference (Maybe Challange)
-  , players        :: Players
   , playerAttempts :: Attempts
   }
-
-type Players = Reference PlayersMap
 
 data Round =
   Round

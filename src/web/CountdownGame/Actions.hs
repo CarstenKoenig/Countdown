@@ -39,7 +39,7 @@ import Countdown.Game (PlayerId, playerId)
 
 import CountdownGame.State (State (..), takeSnapshot, setAttempt)
 import CountdownGame.Players (registeredPlayer)
-import qualified CountdownGame.PlayersRepository as Rep
+import qualified CountdownGame.Database as Rep
 import qualified CountdownGame.State.Rounds as Rounds
 
 import qualified CountdownGame.Views.Play as PlayView
@@ -51,7 +51,7 @@ import qualified CountdownGame.Players as Players
 
 play :: State -> ActionM ()
 play state = do
-    player <- Players.registeredPlayer (players state)
+    player <- Players.registeredPlayer
     if isNothing player
       then redirect "/register"
       else render $ PlayView.render (fromJust player)
@@ -62,7 +62,7 @@ register = render RegisterView.render
 postRegister :: State -> ActionM ()
 postRegister state = do
   name <- param "nickName"
-  Players.registerPlayer name (players state)
+  Players.registerPlayer name
   redirect "/play"         
 
 admin :: State -> ActionM ()
@@ -76,7 +76,7 @@ admin state = do
 
 getPlayers :: State -> ActionM ()
 getPlayers state = do
-  players <- liftIO $ Rep.getPlayers (players state)
+  players <- liftIO $ Rep.getPlayers
   localhost <- isLocalhost
   if not localhost
     then raise "you are not allowed to do that"
@@ -85,7 +85,7 @@ getPlayers state = do
 getSnapshot :: State -> ActionM ()
 getSnapshot state = do
   isHost <- isLocalhost
-  regPlayer <- isJust <$> registeredPlayer (players state)
+  regPlayer <- isJust <$> registeredPlayer
   if not isHost && not regPlayer
     then raise "you are not allowed to do that"
     else do
@@ -105,7 +105,7 @@ startRound state = do
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
-  pid <- fmap playerId <$> registeredPlayer (players state)
+  pid <- fmap playerId <$> registeredPlayer
   case pid of
     Just pid' -> do
       guess <- liftIO $ setAttempt state pid' formula

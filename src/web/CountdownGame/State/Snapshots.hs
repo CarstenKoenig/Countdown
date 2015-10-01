@@ -21,6 +21,7 @@ import Countdown.Game (Attempt, AttemptsMap, Challange, Player, PlayersMap, Play
 import qualified Countdown.Game as G
 
 import CountdownGame.References
+import CountdownGame.Database (getPlayersMap)
 import CountdownGame.State.Definitions (State (..), Round (challange, validTill))
 
 data Snapshot =
@@ -50,7 +51,7 @@ takeSnapshot :: Bool -> State -> IO Snapshot
 takeSnapshot isAdmin state = do
   rd <- readRef id $ currentRound state
   atts <- readRef id $ playerAttempts state
-  ps <- readRef id $ players state
+  ps <- getPlayersMap
   ready <- readRef isJust $ nextChallange state
   now <- getCurrentTime
   let goal = G.targetNumber . challange <$> rd

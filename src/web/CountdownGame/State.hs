@@ -3,7 +3,6 @@
 module CountdownGame.State
        ( State (..)
        , Round (..)
-       , Players
        , initState
        , setAttempt
        , takeSnapshot
@@ -15,7 +14,7 @@ import qualified Data.Map.Strict as M
 import Countdown.Game (Attempt, attempt, Challange, PlayerId)
 
 import CountdownGame.References
-import CountdownGame.State.Definitions (State (..), Round (..), Players)
+import CountdownGame.State.Definitions (State (..), Round (..))
 import CountdownGame.State.Snapshots (takeSnapshot)
 
 setAttempt :: State -> PlayerId -> Text -> IO (Maybe Attempt)
@@ -27,14 +26,10 @@ setAttempt state pid txt = do
 
 initState :: IO State
 initState = do
-  ps <- initializePlayers
   emptyR <- emptyRoundState
   emptyP <- emptyChallange
   noGuesses <- createRef M.empty
-  return $ State emptyR emptyP ps noGuesses
-
-initializePlayers :: IO Players
-initializePlayers = createRef M.empty
+  return $ State emptyR emptyP noGuesses
 
 emptyRoundState :: IO (Reference (Maybe Round))
 emptyRoundState = createRef Nothing
