@@ -58,13 +58,13 @@ takeSnapshot isAdmin state = do
       till = rd >>= validTill
       secs = (`diffUTCTime` now) <$> till
       run = isJust rd && fromMaybe (-1) secs > 0
-      sc = calculateScore (not run && isAdmin) goal ps atts
-  return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) sc
+      scs = calculateScores (not run && isAdmin) goal ps atts
+  return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) scs
 
-calculateScore :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [Score]
-calculateScore _ Nothing ps _ =
+calculateScores :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [Score]
+calculateScores _ Nothing ps _ =
   map (\(_,nick) -> Score nick 0 Nothing Nothing Nothing) . M.toList $ M.map G.nickName ps
-calculateScore inclFormula (Just g) ps gm =
+calculateScores inclFormula (Just g) ps gm =
   sortBy (compare `on` (negate . score)) scores
   where
     scores = map assocGuess . M.toList $ M.map G.nickName ps
