@@ -11,7 +11,7 @@ import Data.Text (Text)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 
-import Countdown.Game.Players(Player (..), PlayerId, PlayersMap)
+import Countdown.Game (Player (..), PlayerId, PlayersMap)
 import qualified Countdown.Game.Players as P
 import CountdownGame.References
 import CountdownGame.State (Players)

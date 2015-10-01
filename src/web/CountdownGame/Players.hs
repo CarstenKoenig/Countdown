@@ -21,7 +21,7 @@ import Data.Text (Text, unpack)
 import Web.Scotty
 import qualified Web.Scotty as S
 
-import Countdown.Game.Players (Player(Player), nickName, playerId)
+import Countdown.Game (Player(Player), nickName, playerId)
 
 import CountdownGame.State (Players)
 import CountdownGame.PlayersRepository as Rep

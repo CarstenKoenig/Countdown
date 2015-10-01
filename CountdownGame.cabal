@@ -17,17 +17,20 @@ library
                      , Countdown.Parser
                      , Countdown.Lists
                      , Countdown.Game
-  other-modules:       Countdown.Game.Players
-                     , Countdown.Game.Challanges
+                     , Countdown.Game.Players
+  other-modules:       Countdown.Game.Challanges
                      , Countdown.Game.Attempts
+                     , Countdown.Game.Random
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9
                      , aeson==0.10.0.0
                      , containers
+                     , MonadRandom
                      , parsec
+                     , random
                      , text
-  hs-source-dirs:      src
+  hs-source-dirs:      src/lib
   default-language:    Haskell2010
 
 executable CountdownGame
@@ -35,6 +38,7 @@ executable CountdownGame
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9
+                     , countdown
                      , transformers
                      , containers
                      , aeson==0.10.0.0
@@ -56,7 +60,7 @@ executable CountdownGame
                      , cookie
                      , time
                      , parsec
-  hs-source-dirs:      src
+  hs-source-dirs:      src/web
   default-language:    Haskell2010
 
 test-suite CountdownTests

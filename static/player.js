@@ -32,6 +32,7 @@ function ViewModel() {
 
 	    if (!self.isRunning()) {
 		self.formula("");
+		self.result("");
 		self.error("");
 		self.scores(res.scoreBoard.map(function(t) {
 		    return { name: t[0], diff: t[1] };

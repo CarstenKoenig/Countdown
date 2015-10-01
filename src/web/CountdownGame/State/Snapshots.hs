@@ -17,9 +17,7 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.List (sortBy)
 
-import Countdown.Game.Attempts (Attempt, AttemptsMap, difference, formula, attempt)
-import Countdown.Game.Challanges (Challange, targetNumber, availableNumbers)
-import Countdown.Game.Players (Player, PlayersMap, PlayerId, nickName)
+import Countdown.Game (Attempt, AttemptsMap, difference, formula, attempt, Challange, targetNumber, availableNumbers, Player, PlayersMap, PlayerId, nickName)
 
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), Round (challange, validTill))

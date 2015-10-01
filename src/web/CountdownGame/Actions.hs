@@ -35,7 +35,7 @@ import Text.Blaze.Html5.Attributes
 import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
-import Countdown.Game.Players (PlayerId, playerId)
+import Countdown.Game (PlayerId, playerId)
 
 import CountdownGame.State (State (..), takeSnapshot, setAttempt)
 import CountdownGame.Players (registeredPlayer)

@@ -12,9 +12,7 @@ module CountdownGame.State
 import Data.Text (Text)
 import qualified Data.Map.Strict as M
 
-import Countdown.Game.Attempts (Attempt, attempt)
-import Countdown.Game.Challanges (Challange)
-import Countdown.Game.Players (PlayerId)
+import Countdown.Game (Attempt, attempt, Challange, PlayerId)
 
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), Round (..), Players)

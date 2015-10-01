@@ -12,7 +12,7 @@ import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 import Data.Maybe (isJust)
 import Data.Time (getCurrentTime, addUTCTime)
 
-import Countdown.Game.Challanges (Challange(..))
+import Countdown.Game (Challange(..), generateChallange)
 import CountdownGame.References
 import CountdownGame.State.Definitions (State, nextChallange)
 
@@ -30,9 +30,5 @@ startGeneration state = do
   return ()
   where
     work = do
-      newRound <- gen
+      newRound <- generateChallange
       modifyRef (const (Just newRound, ())) (nextChallange state)
-    gen :: IO Challange
-    gen = do
-      threadDelay 10000000
-      return $ Challange 765 [1,3,7,10,25,50]

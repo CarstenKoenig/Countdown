@@ -13,9 +13,7 @@ import Data.Aeson (ToJSON)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
 
-import Countdown.Game.Attempts (Attempt, AttemptsMap)
-import Countdown.Game.Challanges (Challange)
-import Countdown.Game.Players (Player, PlayersMap)
+import Countdown.Game (Attempt, AttemptsMap, Challange, Player, PlayersMap)
 
 import CountdownGame.References
 
