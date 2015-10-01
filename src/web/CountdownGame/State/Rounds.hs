@@ -16,6 +16,7 @@ import Data.Time (getCurrentTime, addUTCTime)
 import CountdownGame.State.Challanges
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (currentRound), Round (Round))
+import CountdownGame.Database (insertChallange)
 
 startNext :: State -> IO ()
 startNext state = do
@@ -23,7 +24,8 @@ startNext state = do
   time <- (30 `addUTCTime`) <$> getCurrentTime
   case next of
     Just n -> do
-      let r = Round n (Just time)
+      chId <- insertChallange n
+      let r = Round n chId (Just time)
       modifyRef (const (Just r, ())) (currentRound state)
       startGeneration state
     Nothing -> return ()

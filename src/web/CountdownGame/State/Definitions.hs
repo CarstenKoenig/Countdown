@@ -9,6 +9,7 @@ module CountdownGame.State.Definitions
 import GHC.Generics (Generic)
 
 import Data.Aeson (ToJSON)
+import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
 
@@ -26,6 +27,7 @@ data State =
 data Round =
   Round
   { challange   :: Challange
+  , databaseKey :: Int64
   , validTill   :: Maybe UTCTime
   } deriving (Generic, Show)
 

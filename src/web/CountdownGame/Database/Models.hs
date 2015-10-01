@@ -22,8 +22,13 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 Player
   nickname Text
   deriving Show
+Challange
+  goal Int
+  numbers [Int]
 Score
   score Int
   player PlayerId
+  challange ChallangeId
+  Index player challange
   deriving Show
 |]

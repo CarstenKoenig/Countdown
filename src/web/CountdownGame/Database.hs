@@ -8,8 +8,11 @@ module CountdownGame.Database
        , checkPlayer
        , getPlayers
        , getPlayersMap
+       , insertChallange
+       , setPlayerScore
        ) where
 
+import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import qualified Data.Map.Strict as M
@@ -76,4 +79,18 @@ addPlayer' nick = do
   key <- insert $ Player nick
   let id = fromIntegral $ fromSqlKey key
   return $ P.Player nick id
-    
+
+insertChallange :: G.Challange -> IO Int64
+insertChallange ch = runSqlite connectionString $ do
+  key <- insert $ Challange (G.targetNumber ch) (G.availableNumbers ch)
+  return $ fromSqlKey key
+
+setPlayerScore :: Int64 -> P.PlayerId -> Int -> IO ()
+setPlayerScore chId pId score = runSqlite connectionString $ do
+  let id = toSqlKey chId
+      pid = toSqlKey $ fromIntegral pId
+  sc <- getBy $ Index pid id
+  case sc of
+    Nothing -> insert_ $ Score score pid id
+    Just e  -> update (entityKey e) [ ScoreScore =. score ]
+      

@@ -11,17 +11,23 @@ module CountdownGame.State
 import Data.Text (Text)
 import qualified Data.Map.Strict as M
 
-import Countdown.Game (Attempt, attempt, Challange, PlayerId)
+import Countdown.Game (Attempt, attempt, Challange, PlayerId, score)
 
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), Round (..))
 import CountdownGame.State.Snapshots (takeSnapshot)
+import CountdownGame.Database (setPlayerScore)
 
 setAttempt :: State -> PlayerId -> Text -> IO (Maybe Attempt)
 setAttempt state pid txt = do
-  ch <- readRef (fmap challange) $ currentRound state
-  case ch of
-    Just ch' -> return <$> (modifyRef (attempt ch' txt pid) $ playerAttempts state)
+  rd <- readRef id $ currentRound state
+  case rd of
+    Just rd' -> do
+      let ch  = challange rd'
+          cId = databaseKey rd'
+      at <- modifyRef (attempt ch txt pid) $ playerAttempts state
+      setPlayerScore cId pid (score at)
+      return $ Just at
     Nothing  -> return Nothing
 
 initState :: IO State
