@@ -17,7 +17,8 @@ import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as M
 import Data.List (sortBy)
 
-import Countdown.Game (Attempt, AttemptsMap, difference, formula, attempt, Challange, targetNumber, availableNumbers, Player, PlayersMap, PlayerId, nickName)
+import Countdown.Game (Attempt, AttemptsMap, Challange, Player, PlayersMap, PlayerId)
+import qualified Countdown.Game as G
 
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), Round (challange, validTill))
@@ -29,10 +30,21 @@ data Snapshot =
   , isStartable  :: Bool
   , isRunning    :: Bool
   , secondsLeft  :: Maybe Int
-  , scoreBoard   :: [(Text, Maybe Int, Maybe Text)]
+  , scoreBoard   :: [Score]
   } deriving (Generic, Show)
 
 instance ToJSON Snapshot
+
+data Score =
+  Score
+  { name       :: Text
+  , score      :: Int
+  , value      :: Maybe Int
+  , difference :: Maybe Int
+  , formula    :: Maybe Text
+  } deriving (Generic, Show)
+
+instance ToJSON Score
 
 takeSnapshot :: Bool -> State -> IO Snapshot
 takeSnapshot isAdmin state = do
@@ -41,21 +53,25 @@ takeSnapshot isAdmin state = do
   ps <- readRef id $ players state
   ready <- readRef isJust $ nextChallange state
   now <- getCurrentTime
-  let goal = targetNumber . challange <$> rd
-      nrs = maybe [] (availableNumbers . challange) rd
+  let goal = G.targetNumber . challange <$> rd
+      nrs = maybe [] (G.availableNumbers . challange) rd
       till = rd >>= validTill
       secs = (`diffUTCTime` now) <$> till
       run = isJust rd && fromMaybe (-1) secs > 0
-      score = calculateScore (not run && isAdmin) goal ps atts
-  return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) score
+      sc = calculateScore (not run && isAdmin) goal ps atts
+  return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) sc
 
-calculateScore :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [(Text, Maybe Int, Maybe Text)]
-calculateScore _ Nothing ps _ = map (\(_,nick) -> (nick, Nothing, Nothing)) . M.toList $ M.map nickName ps
-calculateScore inclFormula (Just g) ps gm = sortBy (compare `on` (\(_,a,_) -> a)) scores
+calculateScore :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [Score]
+calculateScore _ Nothing ps _ =
+  map (\(_,nick) -> Score nick 0 Nothing Nothing Nothing) . M.toList $ M.map G.nickName ps
+calculateScore inclFormula (Just g) ps gm =
+  sortBy (compare `on` (negate . score)) scores
   where
-    scores = map assocGuess . M.toList $ M.map nickName ps
-    assocGuess (pid, nick) = (nick, diff, form)
-      where diff  = guess >>= difference
-            form  = if inclFormula then formula <$> guess else Nothing
-            guess = M.lookup pid gm
+    scores = map assocGuess . M.toList $ M.map G.nickName ps
+    assocGuess (pid, nick) = Score nick scr val diff form
+      where diff  = attmp >>= G.difference
+            val   = attmp >>= G.value
+            scr   = maybe 0 G.score $ attmp
+            form  = if inclFormula then G.formula <$> attmp else Nothing
+            attmp = M.lookup pid gm
 

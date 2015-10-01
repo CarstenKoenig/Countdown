@@ -34,12 +34,16 @@ render _ = html $ do
         H.table $ do
           H.thead $ do
             H.td "Spieler"
-            H.td "Diff."
+            H.td "Punkte"
+            H.td "Ergebnis"
+            H.td "Differenz"
             H.td "Formel"
           H.tbody ! dataBind "foreach: scores" $
             H.tr $ do
               H.td ! dataBind "text: name" $ ""
-              H.td ! dataBind "text: diff" $ ""
+              H.td ! dataBind "text: score" $ ""
+              H.td ! dataBind "text: value" $ ""
+              H.td ! dataBind "text: difference" $ ""
               H.td ! dataBind "text: formula" $ ""
       
 dataBind :: AttributeValue -> Attribute

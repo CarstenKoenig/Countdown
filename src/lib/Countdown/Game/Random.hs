@@ -7,7 +7,7 @@ module Countdown.Game.Random
 
 
 import Control.Monad.Random
-import Data.List (delete)
+import Data.List (delete, sort)
 import System.Random
 
 import Countdown.Game.Challanges
@@ -23,7 +23,7 @@ randomChallange :: RandomGen g => Rand g Challange
 randomChallange = do
   ns <- randomPickN 6 baseNumbers
   goal <- findValid ns
-  return $ Challange goal ns
+  return $ Challange goal (sort ns)
   where
     findValid ns = do
       ex <- randomExpression ns

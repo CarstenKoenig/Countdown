@@ -23,9 +23,7 @@ function ViewModel() {
 	    self.isStartable(res.isStartable);
 	    self.isRunning(res.isRunning);
 	    self.secondsLeft(res.secondsLeft);
-	    self.scores(res.scoreBoard.map(function(t) {
-		return { name: t[0], diff: t[1], formula: t[2] };
-	    }));
+	    self.scores(res.scoreBoard);
 	} else {
 	    self.resetValue();
 	}

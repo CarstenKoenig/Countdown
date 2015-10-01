@@ -29,6 +29,7 @@ data Attempt =
   { formula    :: Text
   , value      :: Maybe Int
   , difference :: Maybe Int
+  , score      :: Int
   , info       :: Text
   } deriving (Generic, Show)
 
@@ -42,12 +43,17 @@ attempt ch txt pid aMap =
 attemptFromFormula :: Challange -> Text -> Attempt
 attemptFromFormula ch txt =
   case tryParse txt of
-    Nothing -> Attempt txt Nothing Nothing "Syntaxfehler in Formel"
+    Nothing -> Attempt txt Nothing Nothing 0 "Syntaxfehler in Formel"
     Just ex -> if values ex `isSubsetOf` availableNumbers ch
                then mapValue $ eval ex
-               else Attempt txt Nothing Nothing "Formel darf nur die gegebenen Zahlen verwenden"
+               else Attempt txt Nothing Nothing 0 "Formel darf nur die gegebenen Zahlen verwenden"
   where
-    mapValue []  = Attempt txt Nothing Nothing "Formel enthaelt ungueltige Terme"
-    mapValue [v] = Attempt txt (Just v) (Just $ dif v) "OK"
+    mapValue []  = Attempt txt Nothing Nothing 0 "Formel enthaelt ungueltige Terme"
+    mapValue [v] = Attempt txt (Just v) (Just $ dif v) (score' $ dif v) "OK"
     mapValue _   = error "kein eindeutiges Ergebnis"
     dif v' = abs (targetNumber ch - v')
+    score' d
+      | d == 0     = 10
+      | d <= 5     = 7
+      | d <= 10    = 5 
+      | otherwise = 0
