@@ -39,7 +39,7 @@ setPlayerCookie pc = do
   setCookie "nickName" (T.encodeUtf8 $ nickName pc)
   
 makeCookie :: BS.ByteString -> BS.ByteString -> SetCookie
-makeCookie n v = def { setCookieName = n, setCookieValue = v }
+makeCookie n v = def { setCookieName = n, setCookieValue = v, setCookieMaxAge = Just $ 60 * 60 * 24 * 365 }
 
 renderSetCookie' :: SetCookie -> Text
 renderSetCookie' = T.decodeUtf8 . BSL.toStrict . B.toLazyByteString . renderSetCookie
