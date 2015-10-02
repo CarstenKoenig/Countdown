@@ -30,14 +30,14 @@ import qualified CountdownGame.Cookies as Cookies
 
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
-import CountdownGame.State (initState)
+import CountdownGame.State (initState, connectionPool)
 import CountdownGame.Database (initializeDatabase)
 import qualified CountdownGame.State.Challanges as C
 
 main :: IO ()
 main = do
-  initializeDatabase
-  state <- initState
+  state <- initState 4
+  initializeDatabase (connectionPool state)
   C.startGeneration state
   scotty 8080 $ do
     -- middleware logStdoutDev

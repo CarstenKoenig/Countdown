@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings    #-}
 
 module CountdownGame.Database
-       ( initializeDatabase
+       ( createPool
+       , initializeDatabase
        , addPlayer
        , updatePlayer
        , getPlayer
@@ -12,37 +13,47 @@ module CountdownGame.Database
        , setPlayerScore
        ) where
 
+import Control.Monad.Logger (runNoLoggingT)
+import Control.Monad.Trans.Resource (runResourceT)
+
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 import qualified Data.Map.Strict as M
 import Database.Persist
-import Database.Persist.Sql (insert, fromSqlKey, toSqlKey)
-import Database.Persist.Sqlite (runSqlite, runMigration)
+import Database.Persist.Sql (ConnectionPool, SqlPersistT, insert, fromSqlKey, toSqlKey, runSqlPool)
+import Database.Persist.Sqlite (runSqlite, createSqlitePool, runMigration)
 import Database.Persist.TH
 
+import CountdownGame.State.Definitions (State, connectionPool)
 import CountdownGame.Database.Models
 import qualified Countdown.Game as G
 import qualified Countdown.Game.Players as P
 
+createPool :: Int -> IO ConnectionPool
+createPool n = runResourceT . runNoLoggingT  $ createSqlitePool connectionString n
+
+runInPool :: ConnectionPool ->  SqlPersistT IO a -> IO a
+runInPool = flip runSqlPool
+
 connectionString :: Text
 connectionString = "countdown.db"
 
-initializeDatabase :: IO ()
-initializeDatabase = runSqlite connectionString $ do runMigration migrateAll
+initializeDatabase :: ConnectionPool -> IO ()
+initializeDatabase pool = runInPool pool $ do runMigration migrateAll
 
-addPlayer :: Text -> IO P.Player
-addPlayer nick = runSqlite connectionString $ addPlayer' nick
+addPlayer :: Text -> ConnectionPool -> IO P.Player
+addPlayer nick pool = runInPool pool $ addPlayer' nick
 
-getPlayer :: P.PlayerId -> IO (Maybe P.Player)
-getPlayer id = runSqlite connectionString $ do
+getPlayer :: P.PlayerId -> ConnectionPool -> IO (Maybe P.Player)
+getPlayer id pool = runInPool pool $ do
   pl <- get (toSqlKey $ fromIntegral id)
   return $ case pl of
     Nothing -> Nothing
     Just p  -> Just $ P.Player (playerNickname p) id
 
-checkPlayer :: P.PlayerId -> Text -> IO (Maybe P.Player)
-checkPlayer id nick = runSqlite connectionString $ do
+checkPlayer :: P.PlayerId -> Text -> ConnectionPool -> IO (Maybe P.Player)
+checkPlayer id nick pool = runInPool pool $ do
   pl <- get (toSqlKey $ fromIntegral id)
   return $ case pl of
     Nothing -> Nothing
@@ -52,8 +63,8 @@ checkPlayer id nick = runSqlite connectionString $ do
          then Just $ P.Player (playerNickname p) id
          else Nothing
 
-updatePlayer :: P.PlayerId -> Text -> IO P.Player
-updatePlayer id nick = runSqlite connectionString $ do
+updatePlayer :: P.PlayerId -> Text -> ConnectionPool -> IO P.Player
+updatePlayer id nick pool = runInPool pool $ do
   let pId = toSqlKey $ fromIntegral id
   pl <- get pId
   case pl of
@@ -62,13 +73,13 @@ updatePlayer id nick = runSqlite connectionString $ do
       replace pId $ Player nick
       return $ P.Player nick id
 
-getPlayersMap :: IO P.PlayersMap
-getPlayersMap = do
-  ps <- map (\ p -> (P.playerId p, p)) <$> getPlayers
+getPlayersMap :: ConnectionPool -> IO P.PlayersMap
+getPlayersMap pool = do
+  ps <- map (\ p -> (P.playerId p, p)) <$> getPlayers pool
   return $ M.fromList ps
 
-getPlayers :: IO [P.Player]
-getPlayers = runSqlite connectionString $ do
+getPlayers :: ConnectionPool -> IO [P.Player]
+getPlayers pool = runInPool pool $ do
   pls <- selectList [] []
   return $ map fromEntity pls
   where

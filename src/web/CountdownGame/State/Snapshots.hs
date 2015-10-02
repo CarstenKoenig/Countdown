@@ -51,7 +51,7 @@ takeSnapshot :: Bool -> State -> IO Snapshot
 takeSnapshot isAdmin state = do
   rd <- readRef id $ currentRound state
   atts <- readRef id $ playerAttempts state
-  ps <- getPlayersMap
+  ps <- getPlayersMap (connectionPool state)
   ready <- readRef isJust $ nextChallange state
   now <- getCurrentTime
   let goal = G.targetNumber . challange <$> rd

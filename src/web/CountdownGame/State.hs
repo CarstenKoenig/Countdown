@@ -16,7 +16,7 @@ import Countdown.Game (Attempt, attempt, Challange, PlayerId, score)
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), Round (..))
 import CountdownGame.State.Snapshots (takeSnapshot)
-import CountdownGame.Database (setPlayerScore)
+import CountdownGame.Database (setPlayerScore, createPool)
 
 setAttempt :: State -> PlayerId -> Text -> IO (Maybe Attempt)
 setAttempt state pid txt = do
@@ -30,12 +30,13 @@ setAttempt state pid txt = do
       return $ Just at
     Nothing  -> return Nothing
 
-initState :: IO State
-initState = do
+initState :: Int -> IO State
+initState nrPoolCons = do
   emptyR <- emptyRoundState
   emptyP <- emptyChallange
   noGuesses <- createRef M.empty
-  return $ State emptyR emptyP noGuesses
+  pool <- createPool nrPoolCons
+  return $ State emptyR emptyP noGuesses pool
 
 emptyRoundState :: IO (Reference (Maybe Round))
 emptyRoundState = createRef Nothing

@@ -12,6 +12,7 @@ import Data.Aeson (ToJSON)
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time.Clock (UTCTime)
+import Database.Persist.Sql (ConnectionPool)
 
 import Countdown.Game (Attempt, AttemptsMap, Challange, Player, PlayersMap)
 
@@ -22,6 +23,7 @@ data State =
   { currentRound   :: Reference (Maybe Round)
   , nextChallange  :: Reference (Maybe Challange)
   , playerAttempts :: Attempts
+  , connectionPool :: ConnectionPool
   }
 
 data Round =

@@ -23,29 +23,30 @@ import qualified Web.Scotty as S
 
 import Countdown.Game (Player(Player), nickName, playerId)
 
-import CountdownGame.Database as Rep
+import CountdownGame.State (State (connectionPool))
+import CountdownGame.Database as Db
 import qualified CountdownGame.Cookies as Cookies
                
-registeredPlayer :: ActionM (Maybe Player)
-registeredPlayer = do
+registeredPlayer :: State -> ActionM (Maybe Player)
+registeredPlayer state = do
   cookie <- Cookies.getPlayerCookie
   case cookie of
     Nothing -> return Nothing
-    Just c  -> liftIO $ Rep.checkPlayer (Cookies.playerId c) (Cookies.nickName c)
+    Just c  -> liftIO $ Db.checkPlayer (Cookies.playerId c) (Cookies.nickName c) (connectionPool state)
 
-registerPlayer :: Text -> ActionM Player
-registerPlayer nick = do
+registerPlayer :: Text -> State -> ActionM Player
+registerPlayer nick state = do
   cookie <- Cookies.getPlayerCookie
   player <- liftIO $ case cookie of
-    Nothing -> Rep.addPlayer nick
-    Just c  -> Rep.updatePlayer (Cookies.playerId c) nick
+    Nothing -> Db.addPlayer nick (connectionPool state)
+    Just c  -> Db.updatePlayer (Cookies.playerId c) nick (connectionPool state)
   let cookie = Cookies.PlayerCookie (nickName player) (playerId player)
   Cookies.setPlayerCookie cookie
   return player
 
-isRegistered :: ActionM Bool
-isRegistered = do
-  player <- registeredPlayer
+isRegistered :: State -> ActionM Bool
+isRegistered state = do
+  player <- registeredPlayer state
   return $ isJust player
 
 fromCookie :: Cookies.PlayerCookie -> Player

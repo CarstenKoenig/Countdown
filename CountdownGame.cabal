@@ -46,6 +46,7 @@ executable CountdownGame
                      , warp
                      , http-types
                      , resourcet
+                     , monad-logger
                      , scotty
                      , text
                      , bytestring
