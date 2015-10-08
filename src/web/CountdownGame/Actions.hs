@@ -10,6 +10,8 @@ module CountdownGame.Actions
        , startRound
        , evalFormula
        , isLocalhost
+       , initCompletion
+       , nextCompletion
        )where
 
 import Debug.Trace (trace)
@@ -37,7 +39,7 @@ import Network.Wai (remoteHost)
 
 import Countdown.Game (PlayerId, playerId)
 
-import CountdownGame.State (State (..), takeSnapshot, setAttempt)
+import CountdownGame.State (State (..), takeSnapshot, setAttempt, initialCompletions, completions)
 import CountdownGame.Players (registeredPlayer)
 import qualified CountdownGame.Database as Rep
 import qualified CountdownGame.State.Rounds as Rounds
@@ -111,6 +113,17 @@ evalFormula state = do
       guess <- liftIO $ setAttempt state pid' formula
       json guess
     Nothing -> raise "kein Spieler registriert"
+
+initCompletion :: State -> ActionM ()
+initCompletion state = do
+  cps <- liftIO $ initialCompletions state
+  json cps
+    
+nextCompletion :: State -> ActionM ()
+nextCompletion state = do
+  inp <- jsonData
+  cps <- liftIO $ completions state inp
+  json cps
 
 -- * Helpers
 

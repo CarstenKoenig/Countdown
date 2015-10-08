@@ -15,6 +15,8 @@ function ViewModel() {
     self.result = ko.observable(0);
     self.error = ko.observable("");
 
+    self.actions = ko.observableArray();
+
     self.resetValues = function() {
 	self.goal(null);
 	self.numbers.removeAll();
@@ -35,8 +37,12 @@ function ViewModel() {
 		self.result("");
 		self.error("");
 		self.scores(res.scoreBoard);
+		self.actions.removeAll();
 	    } else {
 		self.scores.removeAll();
+		if (self.actions().length === 0) {
+		    self.queryActions();
+		};
 	    }
 	} else {
 	    self.resetValue();
@@ -84,10 +90,48 @@ function ViewModel() {
 	}
     };
 
+    self.setActions = function(res) {
+	self.actions(res.map(function(x) {
+	    return { display: x[0], selectMe: function() { self.nextActions(x[1]); } };
+	}));
+    };
+
+    self.nextActions = function(p) {
+	$.ajax({
+	    contentType: 'application/json',
+	    data: JSON.stringify(p),
+	    dataType: 'json',
+	    success: function(res){
+		self.setActions(res);
+	    },
+	    fail: function(err) {
+		self.actions.removeAll();
+	    },
+	    type: 'POST',
+	    url: '/api/nextCompletion'
+	});
+    };
+
+    self.queryActions = function () {
+	if (!self.gotBusted()) {
+	    timer.pause();
+	    $.ajax({
+		url: "/api/initCompletion", 
+		cache: false,
+		success: function(res) {
+		    self.setActions(res);
+		},
+		fail: function(err) {
+		self.actions.removeAll();
+		}
+	    });
+	}
+    };
+
     self.bust = function () {
 	self.gotBusted(true);
 	timer.stop();
-	resetValues();
+	self.resetValues();
     };
 
     var timer = $.timer(self.queryState, 500, true);
