@@ -113,7 +113,7 @@ function ViewModel() {
     };
 
     self.queryActions = function () {
-	if (!self.gotBusted()) {
+	if (false && !self.gotBusted()) {
 	    timer.pause();
 	    $.ajax({
 		url: "/api/initCompletion", 

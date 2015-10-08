@@ -45,9 +45,9 @@ render player = html $ do
           H.form $ do
             H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
             H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
-        H.div ! dataBind "visible: isRunning" $ do
-          H.div ! dataBind "foreach: actions" $ do
-            H.button ! dataBind "text: display, click: selectMe" $ ""
+        -- H.div ! dataBind "visible: isRunning" $ do
+        --   H.div ! dataBind "foreach: actions" $ do
+        --     H.button ! dataBind "text: display, click: selectMe" $ ""
             
 
       H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
