@@ -26,17 +26,18 @@ render player = html $ do
       h1 "COUNTdown"
       h3 . text $  "Hallo " `append` nickName player
 
-      H.div ! A.class_ "Aufgabe" $ do
+      H.div ! A.class_ "Countdown" $ do
+        p ! dataBind "text: secondsLeft" $ ""
+
+      H.div ! A.class_ "Aufgabe" ! dataBind "visible: isRunning" $ do
         p $ do
           H.span "Ziel: "
           H.span ! dataBind "text: goal" $ ""
         p $ do
           H.span "Zahlen: "
           H.span ! dataBind "text: numbers" $ ""
-        H.div ! A.class_ "Countdown" ! dataBind "visible: isRunning" $ do
-          p ! dataBind "text: secondsLeft" $ ""
   
-      H.div ! A.class_ "Guess" $ do
+      H.div ! A.class_ "Guess" ! dataBind "visible: isRunning" $ do
         p $ do
           H.span "letztes Ergebnis: "
           H.span ! A.class_ "Result" ! dataBind "text: result" $ ""
@@ -45,11 +46,7 @@ render player = html $ do
           H.form $ do
             H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
             H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
-        -- H.div ! dataBind "visible: isRunning" $ do
-        --   H.div ! dataBind "foreach: actions" $ do
-        --     H.button ! dataBind "text: display, click: selectMe" $ ""
             
-
       H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
         H.table $ do
           H.thead $ do

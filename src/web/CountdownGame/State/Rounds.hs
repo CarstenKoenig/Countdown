@@ -3,7 +3,7 @@
 
 
 module CountdownGame.State.Rounds
-       (
+       ( startGameLoop
        )where
 
 import GHC.Generics (Generic)

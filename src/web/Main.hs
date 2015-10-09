@@ -51,8 +51,5 @@ main = do
     post "/register" $ Actions.postRegister state
     get "/api/players" $ Actions.getPlayers state
     get "/api/current" $ Actions.getSnapshot state
-    post "/api/start" $ Actions.startRound state
     get "/api/eval/:formula" $ Actions.evalFormula state
-    get "/api/initCompletion" $ Actions.initCompletion state
-    post "/api/nextCompletion" $ Actions.nextCompletion state
     

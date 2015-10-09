@@ -56,7 +56,7 @@ nochZuWartendeSekunden state = do
   where seks n (WartePhase t _ _)     = bisT n t
         seks n (RundePhase t _ _ _ _) = bisT n t
         seks _ _                      = 0
-        bisT n t = truncate $ min 0 $ t `diffUTCTime` n
+        bisT n t = truncate $ max 0 $ t `diffUTCTime` n
 
 ergebnisListe :: State -> IO Ergebnisse
 ergebnisListe = readRef ergs . aktuellePhase

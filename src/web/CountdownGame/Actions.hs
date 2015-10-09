@@ -7,11 +7,8 @@ module CountdownGame.Actions
        , admin
        , getPlayers
        , getSnapshot
-       , startRound
        , evalFormula
        , isLocalhost
-       , initCompletion
-       , nextCompletion
        )where
 
 import Debug.Trace (trace)
@@ -40,7 +37,7 @@ import Network.Wai (remoteHost)
 import Countdown.Game (PlayerId)
 import qualified Countdown.Game as G
 
-import CountdownGame.State (State (..), takeSnapshot, setAttempt, initialCompletions, completions)
+import CountdownGame.State (State (..), takeSnapshot, versuchHinzufuegen)
 import CountdownGame.Players (registeredPlayer)
 import qualified CountdownGame.Database as Rep
 import qualified CountdownGame.State.Rounds as Rounds
@@ -95,36 +92,15 @@ getSnapshot state = do
       snap <- liftIO $ takeSnapshot isHost state
       json snap
 
-startRound :: State -> ActionM ()
-startRound state = do
-  localhost <- isLocalhost
-  if not localhost
-    then raise "you are not allowed to do that"
-    else do
-      liftIO $ Rounds.startNext state
-      getSnapshot state
-  
-
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
   pl <- registeredPlayer state
   case pl of
     Just pl' -> do
-      att <- liftIO $ setAttempt state pl' formula
+      att <- liftIO $ versuchHinzufuegen state pl' formula
       json att
     Nothing -> raise "kein Spieler registriert"
-
-initCompletion :: State -> ActionM ()
-initCompletion state = do
-  cps <- liftIO $ initialCompletions state
-  json cps
-    
-nextCompletion :: State -> ActionM ()
-nextCompletion state = do
-  inp <- jsonData
-  cps <- liftIO $ completions state inp
-  json cps
 
 -- * Helpers
 

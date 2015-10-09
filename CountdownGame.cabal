@@ -21,6 +21,7 @@ library
                      , Countdown.Game.Players
   other-modules:       Countdown.Game.Attempts
                      , Countdown.Game.Random
+                     , Countdown.Game.Challanges
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9

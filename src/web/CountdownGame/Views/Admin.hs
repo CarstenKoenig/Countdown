@@ -20,16 +20,15 @@ render _ = html $ do
   script ! A.src "admin.js" $ text ""
   body $ H.div ! A.class_ "Main" $ do
       h1 "COUNTdown"
-      H.button ! dataBind "click: startRound, enable: isStartable" $ "starten.."
-      H.div ! A.class_ "Aufgabe" $ do
+      H.div ! A.class_ "Countdown" $ do
+        p ! dataBind "text: secondsLeft" $ ""
+      H.div ! A.class_ "Aufgabe"  ! dataBind "visible: isRunning" $ do
         p $ do
           H.span "Ziel: "
           H.span ! dataBind "text: goal" $ ""
         p $ do
           H.span "Zahlen: "
           H.span ! dataBind "text: numbers" $ ""
-        H.div ! A.class_ "Countdown" ! dataBind "visible: isRunning" $ do
-          p ! dataBind "text: secondsLeft" $ ""
       H.div ! A.class_ "Ergebnisse" $ do
         H.table $ do
           H.thead $ do

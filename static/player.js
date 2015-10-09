@@ -5,23 +5,19 @@ function ViewModel() {
     self.goal = ko.observable(null);
     self.numbers = ko.observableArray();
     self.isRunning = ko.observable(false);
-    self.secondsLeft = ko.observable(null);
+    self.isWaiting = ko.observable(false);
+    self.secondsLeft = ko.observable(0);
     self.scores = ko.observableArray();
-    self.isWaiting = ko.computed (function() {
-	return !self.isRunning();
-    });
 
     self.formula = ko.observable("");
     self.result = ko.observable(0);
     self.error = ko.observable("");
 
-    self.actions = ko.observableArray();
-
     self.resetValues = function() {
 	self.goal(null);
 	self.numbers.removeAll();
 	self.isRunning(false);
-	self.secondsLeft(null);
+	self.secondsLeft(0);
 	self.scores.removeAll();
     };
 
@@ -29,6 +25,7 @@ function ViewModel() {
 	if (res) {
 	    self.goal(res.goal);
 	    self.numbers(res.availableNrs);
+	    self.isWaiting(res.isWaiting);
 	    self.isRunning(res.isRunning);
 	    self.secondsLeft(res.secondsLeft);
 
@@ -37,12 +34,8 @@ function ViewModel() {
 		self.result("");
 		self.error("");
 		self.scores(res.scoreBoard);
-		self.actions.removeAll();
 	    } else {
 		self.scores.removeAll();
-		if (self.actions().length === 0) {
-		    self.queryActions();
-		};
 	    }
 	} else {
 	    self.resetValue();
@@ -81,50 +74,14 @@ function ViewModel() {
 	    self.error("");
 	    self.result("");
 	    $.get("/api/eval/" + encodeURIComponent(f), null, function(res) {
-		if (res.info != "OK") {
+		if (!res) {
+		    self.error("keine Antwort");
+		} else if (res.info != "OK") {
 		    self.error(res.info);
 		} else {
 		    self.result(res.value);
 		}
 	    }).fail(self.setError);
-	}
-    };
-
-    self.setActions = function(res) {
-	self.actions(res.map(function(x) {
-	    return { display: x[0], selectMe: function() { self.nextActions(x[1]); } };
-	}));
-    };
-
-    self.nextActions = function(p) {
-	$.ajax({
-	    contentType: 'application/json',
-	    data: JSON.stringify(p),
-	    dataType: 'json',
-	    success: function(res){
-		self.setActions(res);
-	    },
-	    fail: function(err) {
-		self.actions.removeAll();
-	    },
-	    type: 'POST',
-	    url: '/api/nextCompletion'
-	});
-    };
-
-    self.queryActions = function () {
-	if (false && !self.gotBusted()) {
-	    timer.pause();
-	    $.ajax({
-		url: "/api/initCompletion", 
-		cache: false,
-		success: function(res) {
-		    self.setActions(res);
-		},
-		fail: function(err) {
-		self.actions.removeAll();
-		}
-	    });
 	}
     };
 
