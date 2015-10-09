@@ -32,6 +32,6 @@ versuchHinzufuegen state p f = do
 
 initState :: Int -> IO State
 initState nrPoolCons = do
-  phases <- startGameLoop (SpielParameter 60 30)
+  phases <- startGameLoop (SpielParameter 60 60)
   pool <- createPool nrPoolCons
   return $ State phases pool

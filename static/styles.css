@@ -6,6 +6,132 @@ h1 {
     color: blue;
 }
 
+.InRound {
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: 10px;
+    width: 800px;
+}
+
+.Timer {
+    float: left;
+    display: block;
+
+    width: 60px;
+    height: 60px;
+    background: lightyellow;
+
+    margin: 10px;
+
+    font-weight: bold;
+    font-size: 1.2em;
+
+    align-content: center;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 60px;
+
+    border-style: solid;
+    border-color: black;
+    
+}
+
+.Aufgabe {
+    float: left;
+
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+
+    background: lightgray;
+
+    padding: 15px;
+
+    border-style: solid;
+    border-color: black;
+}
+
+.Kopf {
+    clear: both;
+
+    width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+
+    background: red;
+}
+
+.Kopf .Zahlen {
+    float: left;
+
+    margin-right: 10px;
+}
+
+.Zahlen ul {
+    list-style-type: none;
+    height: 80px;
+    margin: auto;
+}
+
+.Zahlen li {
+    float: left;
+    
+    margin-right: 5px;
+    border-style: solid;
+    border-color: black;
+    min-width: 32px;
+
+    text-align: center;
+
+    background: lightpink;
+    padding: 5px;
+}
+
+.Ziel {
+    float: left;
+
+    margin-left: 40px;
+    padding: 5px;
+
+    border-style: solid;
+    border-color: black;
+    min-width: 32px;
+
+    font-weight: bold;
+
+    text-align: center;
+
+    background: lightgreen;
+}
+
+.FormulaInput  {
+    clear: both;
+
+    width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+.FormulaInput input {
+    font-size: 1em;
+    padding: 5px;
+}
+
+.Ergebnis {
+    width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Ergebnis p span:nth-child(2) {
+    color: darkgreen;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+
 .Main {
     margin-left: auto;
     margin-right: auto;

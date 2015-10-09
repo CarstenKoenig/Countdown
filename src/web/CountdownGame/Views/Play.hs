@@ -21,44 +21,37 @@ render player = html $ do
       H.div ! A.class_ "centerMessage" $ do
         h1 "damn it.."
         H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
-      
-    H.div ! A.class_ "Main" $ do
-      h1 "COUNTdown"
-      h3 . text $  "Hallo " `append` nickName player
 
-      H.div ! A.class_ "Countdown" $ do
-        p ! dataBind "text: secondsLeft" $ ""
-
-      H.div ! A.class_ "Aufgabe" ! dataBind "visible: isRunning" $ do
-        p $ do
-          H.span "Ziel: "
-          H.span ! dataBind "text: goal" $ ""
-        p $ do
-          H.span "Zahlen: "
-          H.span ! dataBind "text: numbers" $ ""
-  
-      H.div ! A.class_ "Guess" ! dataBind "visible: isRunning" $ do
-        p $ do
-          H.span "letztes Ergebnis: "
-          H.span ! A.class_ "Result" ! dataBind "text: result" $ ""
-        H.div ! A.class_ "FormulaInput" ! dataBind "visible: isRunning" $ do
-          p "dein Loesungsvorschlag: "
+    H.div ! A.class_ "InRound" ! dataBind "visible: isRunning" $ do
+      H.div ! A.class_ "Timer" ! dataBind "text: secondsLeft" $ ""
+      H.div ! A.class_ "Aufgabe" $ do
+        H.div ! A.class_ "Kopf" $ do
+          H.div ! A.class_ "Zahlen" $ do
+            H.ul ! dataBind "foreach: numbers" $ do
+              H.li ! dataBind "text: $data" $ ""
+          H.div ! A.class_ "Ziel" $ do
+            H.span ! dataBind "text: goal" $ ""
+        H.div ! A.class_ "FormulaInput" $ do
           H.form $ do
             H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
             H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
+        H.div ! A.class_ "Ergebnis" $ do
+          p $ do
+            H.span "letztes Ergebnis: "
+            H.span ! dataBind "text: result" $ ""
+        H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
             
-      H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
-        H.table $ do
-          H.thead $ do
-            H.td "Spieler"
-            H.td "Punkte"
-          H.tbody ! dataBind "foreach: scores" $
-            H.tr $ do
-              H.td ! dataBind "text: name" $ ""
-              H.td ! dataBind "text: score" $ ""
 
-      H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
-         
+    H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
+      H.div ! A.class_ "Timer" ! dataBind "text: secondsLeft" $ ""
+      H.table $ do
+        H.thead $ do
+          H.td "Spieler"
+          H.td "Punkte"
+        H.tbody ! dataBind "foreach: scores" $
+          H.tr $ do
+            H.td ! dataBind "text: name" $ ""
+            H.td ! dataBind "text: score" $ ""
       
 dataBind :: AttributeValue -> Attribute
 dataBind = dataAttribute "bind"
