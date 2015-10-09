@@ -37,10 +37,9 @@ import Network.Wai (remoteHost)
 import Countdown.Game (PlayerId)
 import qualified Countdown.Game as G
 
-import CountdownGame.State (State (..), takeSnapshot, versuchHinzufuegen)
+import CountdownGame.Spiel (State (..), takeSnapshot, versuchHinzufuegen)
 import CountdownGame.Players (registeredPlayer)
 import qualified CountdownGame.Database as Rep
-import qualified CountdownGame.State.Rounds as Rounds
 
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView

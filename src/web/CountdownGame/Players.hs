@@ -23,7 +23,7 @@ import qualified Web.Scotty as S
 
 import Countdown.Game (Player(Player), nickName, playerId)
 
-import CountdownGame.State (State (connectionPool))
+import CountdownGame.Spiel (State (connectionPool))
 import CountdownGame.Database as Db
 import qualified CountdownGame.Cookies as Cookies
                

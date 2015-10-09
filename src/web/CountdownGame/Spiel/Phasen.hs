@@ -2,8 +2,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 
-module CountdownGame.State.Rounds
-       ( startGameLoop
+module CountdownGame.Spiel.Phasen
+       ( SpielParameter (..)
+       , Phasen (..)
+       , Versuche
+       , Ergebnisse, Ergebnis (..)
+       , startGameLoop
        )where
 
 import GHC.Generics (Generic)
@@ -13,15 +17,14 @@ import Control.Concurrent (forkIO, threadDelay, ThreadId)
 
 import Data.Aeson (ToJSON)
 import Data.Function (on)
+import Data.Int (Int64)
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 import Data.List (sortBy)
-import Data.Maybe (isJust)
 import qualified Data.Map.Strict as M
 import Data.Text (Text)
 import Data.Time (UTCTime, NominalDiffTime, getCurrentTime, addUTCTime)
 
 import CountdownGame.References
-import CountdownGame.State.Definitions
 import CountdownGame.Database (insertChallange)
 
 import Countdown.Game (Attempt, AttemptsMap, Challange)
@@ -45,11 +48,53 @@ import qualified Countdown.Game as G
 -- Spieler können ihre Attempts schicken (die gespeichert werden)
 -- Am Ende dieser Phase sind die Ergebnise der Runde verfügbar
 
+data SpielParameter =
+  SpielParameter
+  { warteZeit  :: NominalDiffTime
+  , rundenZeit :: NominalDiffTime
+  }
+
+data Phasen
+  = Start
+  | WartePhase
+    { startNaechsteRunde :: UTCTime
+    , letzteErgebnisse   :: Ergebnisse
+    , naechsteChallange  :: Async Challange }
+  | RundePhase
+    { endeRunde       :: UTCTime
+    , aufgabe         :: Challange
+    , spielerVersuche :: Versuche
+    , databaseKey     :: Int64
+    , ergebnisse      :: Async Ergebnisse }
+
 startGameLoop :: SpielParameter -> IO (Reference Phasen)
 startGameLoop params = do
   ref <- createRef Start
   _   <- forkIO $ gameLoop params [] ref
   return ref
+
+type Versuche   = Reference AttemptsMap
+
+type Ergebnisse = [Ergebnis]
+data Ergebnis =
+  Ergebnis
+  { name       :: Text
+  , score      :: Int
+  , value      :: Maybe Int
+  , difference :: Maybe Int
+  , formula    :: Text
+  } deriving (Generic, Show)
+
+instance ToJSON Ergebnis
+
+berechneErgebnisse :: AttemptsMap -> Ergebnisse
+berechneErgebnisse attMap =
+  sortBy (compare `on` (negate . score)) scores
+  where
+    scores = map calcScore . M.toList $ attMap
+    calcScore (_, att) =
+      Ergebnis (G.nickName $ G.fromPlayer att) (G.score att) (G.value att) (G.difference att) (G.formula att)
+
 
 gameLoop :: SpielParameter -> Ergebnisse ->  Reference Phasen -> IO ()
 gameLoop params ltErg phase = do

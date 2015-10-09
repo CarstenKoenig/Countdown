@@ -30,7 +30,7 @@ import qualified CountdownGame.Cookies as Cookies
 
 import Data.IORef (IORef(..), newIORef, readIORef, atomicModifyIORef')
 
-import CountdownGame.State (initState, connectionPool)
+import CountdownGame.Spiel (initState, connectionPool)
 import CountdownGame.Database (initializeDatabase)
 
 main :: IO ()

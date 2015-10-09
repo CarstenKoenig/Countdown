@@ -25,7 +25,6 @@ import Database.Persist.Sql (ConnectionPool, SqlPersistT, insert, fromSqlKey, to
 import Database.Persist.Sqlite (runSqlite, createSqlitePool, runMigration)
 import Database.Persist.TH
 
-import CountdownGame.State.Definitions (State, connectionPool)
 import CountdownGame.Database.Models
 import qualified Countdown.Game as G
 import qualified Countdown.Game.Players as P
