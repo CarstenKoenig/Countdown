@@ -4,8 +4,8 @@
 module CountdownGame.Spiel
        ( State (..)
        , initState
-       , versuchHinzufuegen
        , takeSnapshot
+       , versuchHinzufuegen
        )where
 
 import GHC.Generics (Generic)
@@ -21,7 +21,7 @@ import qualified Countdown.Game as G
 
 
 import CountdownGame.References
-import CountdownGame.Spiel.Phasen (Phasen (..), SpielParameter (..), Ergebnisse, startGameLoop)
+import CountdownGame.Spiel.Phasen (Phasen (..), SpielParameter (..), Ergebnisse, startGameLoop, versuchHinzufuegen)
 import CountdownGame.Database (setPlayerScore, createPool)
 
 data State =
@@ -35,16 +35,6 @@ initState nrPoolCons = do
   phases <- startGameLoop (SpielParameter 60 60)
   pool <- createPool nrPoolCons
   return $ State phases pool
-
-versuchHinzufuegen :: State -> Player -> Text -> IO (Maybe Attempt)
-versuchHinzufuegen state p f = do
-  phase <- readRef id $ aktuellePhase state
-  case phase of
-    (RundePhase _ chal vers key _) -> do
-      v <- modifyRef (G.attempt chal f p) vers
-      setPlayerScore key (G.playerId p) (G.score v)
-      return $ Just v
-    _ -> return Nothing
 
 data Snapshot =
   Snapshot

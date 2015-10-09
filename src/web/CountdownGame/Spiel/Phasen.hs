@@ -8,6 +8,7 @@ module CountdownGame.Spiel.Phasen
        , Versuche
        , Ergebnisse, Ergebnis (..)
        , startGameLoop
+       , versuchHinzufuegen
        )where
 
 import GHC.Generics (Generic)
@@ -74,6 +75,17 @@ startGameLoop params = do
   return ref
 
 type Versuche   = Reference AttemptsMap
+
+versuchHinzufuegen :: Reference Phasen -> (Int64 -> G.PlayerId -> Int -> IO ()) -> G.Player -> Text -> IO (Maybe Attempt)
+versuchHinzufuegen ref saveScore p f = do
+  phase <- readRef id ref
+  case phase of
+    (RundePhase _ chal vers key _) -> do
+      v <- modifyRef (G.attempt chal f p) vers
+      saveScore key (G.playerId p) (G.score v)
+      return $ Just v
+    _ -> return Nothing
+
 
 type Ergebnisse = [Ergebnis]
 data Ergebnis =
