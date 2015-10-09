@@ -19,7 +19,7 @@ import Countdown.Expressions (values, eval)
 import Countdown.Parser (tryParse)
 import Countdown.Lists (isSubsetOf)
 
-import Countdown.Game.Players (PlayerId)
+import Countdown.Game.Players (PlayerId, Player, playerId)
 import Countdown.Game.Challanges (Challange(..))
 
 type AttemptsMap = Map PlayerId Attempt
@@ -30,26 +30,27 @@ data Attempt =
   , value      :: Maybe Int
   , difference :: Maybe Int
   , score      :: Int
+  , fromPlayer :: Player
   , info       :: Text
   } deriving (Generic, Show)
 
 instance ToJSON Attempt
 
-attempt :: Challange -> Text -> PlayerId -> AttemptsMap -> (AttemptsMap, Attempt)
-attempt ch txt pid aMap =
-  let att = attemptFromFormula ch txt
-  in (M.insert pid att aMap, att)
+attempt :: Challange -> Text -> Player -> AttemptsMap -> (AttemptsMap, Attempt)
+attempt ch txt p aMap =
+  let att = attemptFromFormula ch p txt
+  in (M.insert (playerId p) att aMap, att)
 
-attemptFromFormula :: Challange -> Text -> Attempt
-attemptFromFormula ch txt =
+attemptFromFormula :: Challange -> Player -> Text -> Attempt
+attemptFromFormula ch p txt =
   case tryParse txt of
-    Nothing -> Attempt txt Nothing Nothing 0 "Syntaxfehler in Formel"
+    Nothing -> Attempt txt Nothing Nothing 0 p "Syntaxfehler in Formel"
     Just ex -> if values ex `isSubsetOf` availableNumbers ch
                then mapValue $ eval ex
-               else Attempt txt Nothing Nothing 0 "Formel darf nur die gegebenen Zahlen verwenden"
+               else Attempt txt Nothing Nothing 0 p "Formel darf nur die gegebenen Zahlen verwenden"
   where
-    mapValue []  = Attempt txt Nothing Nothing 0 "Formel enthaelt ungueltige Terme"
-    mapValue [v] = Attempt txt (Just v) (Just $ dif v) (score' $ dif v) "OK"
+    mapValue []  = Attempt txt Nothing Nothing 0 p "Formel enthaelt ungueltige Terme"
+    mapValue [v] = Attempt txt (Just v) (Just $ dif v) (score' $ dif v) p "OK"
     mapValue _   = error "kein eindeutiges Ergebnis"
     dif v' = abs (targetNumber ch - v')
     score' d

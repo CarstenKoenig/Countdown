@@ -37,7 +37,8 @@ import Text.Blaze.Html5.Attributes
 import Network.Socket (SockAddr(..))
 import Network.Wai (remoteHost)
 
-import Countdown.Game (PlayerId, playerId)
+import Countdown.Game (PlayerId)
+import qualified Countdown.Game as G
 
 import CountdownGame.State (State (..), takeSnapshot, setAttempt, initialCompletions, completions)
 import CountdownGame.Players (registeredPlayer)
@@ -107,11 +108,11 @@ startRound state = do
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
-  pid <- fmap playerId <$> registeredPlayer state
-  case pid of
-    Just pid' -> do
-      guess <- liftIO $ setAttempt state pid' formula
-      json guess
+  pl <- registeredPlayer state
+  case pl of
+    Just pl' -> do
+      att <- liftIO $ setAttempt state pl' formula
+      json att
     Nothing -> raise "kein Spieler registriert"
 
 initCompletion :: State -> ActionM ()

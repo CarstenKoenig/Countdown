@@ -13,7 +13,7 @@ module CountdownGame.State
 import Data.Text (Text, pack)
 import qualified Data.Map.Strict as M
 
-import Countdown.Game (Attempt, attempt, Challange, PlayerId, score, availableNumbers)
+import Countdown.Game (Attempt, attempt, Challange, Player, PlayerId, playerId, score, availableNumbers)
 import qualified Countdown.Completion as CC
 
 import CountdownGame.References
@@ -39,15 +39,15 @@ completions state inp = do
       let nrs  = availableNumbers $ challange rd'
       return $ map (\ (i,e) -> (pack (show i), (i,e))) $ CC.next nrs inp
 
-setAttempt :: State -> PlayerId -> Text -> IO (Maybe Attempt)
-setAttempt state pid txt = do
+setAttempt :: State -> Player -> Text -> IO (Maybe Attempt)
+setAttempt state p txt = do
   rd <- readRef id $ currentRound state
   case rd of
     Just rd' -> do
       let ch  = challange rd'
           cId = databaseKey rd'
-      at <- modifyRef (attempt ch txt pid) $ playerAttempts state
-      setPlayerScore cId pid (score at)
+      at <- modifyRef (attempt ch txt p) $ playerAttempts state
+      setPlayerScore cId (playerId p) (score at)
       return $ Just at
     Nothing  -> return Nothing
 
