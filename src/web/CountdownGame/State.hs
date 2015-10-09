@@ -4,7 +4,7 @@ module CountdownGame.State
        ( State (..)
        , initState
        , versuchHinzufuegen
-       , takeSnapshot
+       , Def.takeSnapshot
        )where
 
 import Data.Text (Text, pack)
@@ -15,7 +15,6 @@ import Countdown.Game (Attempt, Challange, Player, PlayerId, playerId, score, at
 import CountdownGame.References
 import CountdownGame.State.Definitions (State (..), SpielParameter (..), Phasen (..))
 import qualified CountdownGame.State.Definitions as Def
-import CountdownGame.State.Snapshots (takeSnapshot)
 import CountdownGame.State.Rounds (startGameLoop)
 import CountdownGame.Database (setPlayerScore, createPool)
 

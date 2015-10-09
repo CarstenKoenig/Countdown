@@ -86,10 +86,10 @@ getSnapshot :: State -> ActionM ()
 getSnapshot state = do
   isHost <- isLocalhost
   regPlayer <- isJust <$> registeredPlayer state
-  if not isHost && not regPlayer
+  if not regPlayer
     then raise "you are not allowed to do that"
     else do
-      snap <- liftIO $ takeSnapshot isHost state
+      snap <- liftIO $ takeSnapshot state
       json snap
 
 evalFormula :: State -> ActionM ()

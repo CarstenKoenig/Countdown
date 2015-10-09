@@ -3,16 +3,12 @@
 
 module CountdownGame.State.Definitions
        ( SpielParameter (..)
-       , Phasen (..)
-       , istWartend
-       , istInRunde
-       , nochZuWartendeSekunden
-       , ergebnisListe
-       , zielZahl
-       , verfuegbareZahlen
+       , Snapshot
+       , takeSnapshot
        , Versuche
        , Ergebnis (..), Ergebnisse, berechneErgebnisse
        , State (..)
+       , Phasen (..)
        )where
 
 import GHC.Generics (Generic)
@@ -39,40 +35,29 @@ data State =
   , connectionPool :: ConnectionPool
   }
 
-istWartend :: State -> IO Bool
-istWartend = readRef warted . aktuellePhase
-  where warted (WartePhase _ _ _) = True
-        warted _                  = False
+data Snapshot =
+  Snapshot
+  { goal         :: Maybe Int
+  , availableNrs :: [Int]
+  , isWaiting    :: Bool
+  , isRunning    :: Bool
+  , secondsLeft  :: Int
+  , scoreBoard   :: Ergebnisse
+  } deriving (Generic, Show)
 
-istInRunde :: State -> IO Bool
-istInRunde = readRef inRunde . aktuellePhase
-  where inRunde (RundePhase _ _ _ _ _) = True
-        inRunde _                      = False
+instance ToJSON Snapshot
 
-nochZuWartendeSekunden :: State -> IO Int
-nochZuWartendeSekunden state = do
+takeSnapshot :: State -> IO Snapshot
+takeSnapshot state = do
   now <- getCurrentTime
-  readRef (seks now) $ aktuellePhase state
-  where seks n (WartePhase t _ _)     = bisT n t
-        seks n (RundePhase t _ _ _ _) = bisT n t
-        seks _ _                      = 0
-        bisT n t = truncate $ max 0 $ t `diffUTCTime` n
-
-ergebnisListe :: State -> IO Ergebnisse
-ergebnisListe = readRef ergs . aktuellePhase
-  where ergs (WartePhase _ e _) = e
-        ergs _                  = []
-
-zielZahl :: State -> IO (Maybe Int)
-zielZahl = readRef zz . aktuellePhase
-  where zz (RundePhase _ c _ _ _) = Just $ G.targetNumber c
-        zz _                      = Nothing
-
-verfuegbareZahlen :: State -> IO [Int]
-verfuegbareZahlen = readRef aNrs . aktuellePhase
-  where aNrs (RundePhase _ c _ _ _) = G.availableNumbers c
-        aNrs _                      = []
-
+  readRef (readPhase now) $ aktuellePhase state
+  where
+    readPhase _ Start = Snapshot Nothing [] False False 0 []
+    readPhase n (WartePhase t ergs _) =
+      Snapshot Nothing [] True False (bisT n t) ergs
+    readPhase n (RundePhase t ch _ _ _) =
+      Snapshot (Just $ G.targetNumber ch) (G.availableNumbers ch) False True (bisT n t) []
+    bisT n t = max 0 . truncate $ t `diffUTCTime` n
 
 data SpielParameter =
   SpielParameter
