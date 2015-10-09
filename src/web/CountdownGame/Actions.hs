@@ -37,14 +37,14 @@ import Network.Wai (remoteHost)
 import Countdown.Game (PlayerId)
 import qualified Countdown.Game as G
 
-import CountdownGame.Spiel (State (..), takeSnapshot, versuchHinzufuegen)
-import CountdownGame.Players (registeredPlayer)
+import CountdownGame.Spiel as Spiel (State)
+import qualified CountdownGame.Spiel as Spiel
+import qualified CountdownGame.Players as Players
 import qualified CountdownGame.Database as Rep
 
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
-import qualified CountdownGame.Players as Players
 
 -- * controller actions
 
@@ -75,7 +75,7 @@ admin state = do
 
 getPlayers :: State -> ActionM ()
 getPlayers state = do
-  players <- liftIO $ Rep.getPlayers (connectionPool state)
+  players <- liftIO $ Rep.getPlayers (Spiel.connectionPool state)
   localhost <- isLocalhost
   if not localhost
     then raise "you are not allowed to do that"
@@ -84,20 +84,20 @@ getPlayers state = do
 getSnapshot :: State -> ActionM ()
 getSnapshot state = do
   isHost <- isLocalhost
-  regPlayer <- isJust <$> registeredPlayer state
+  regPlayer <- isJust <$> Players.registeredPlayer state
   if not regPlayer
     then raise "you are not allowed to do that"
     else do
-      snap <- liftIO $ takeSnapshot state
+      snap <- liftIO $ Spiel.takeSnapshot state
       json snap
 
 evalFormula :: State -> ActionM ()
 evalFormula state = do
   formula <- param "formula"
-  pl <- registeredPlayer state
+  pl <- Players.registeredPlayer state
   case pl of
     Just pl' -> do
-      att <- liftIO $ versuchHinzufuegen (aktuellePhase state) Rep.setPlayerScore pl' formula
+      att <- liftIO $ Spiel.versuchHinzufuegen (Spiel.aktuellePhase state) Rep.setPlayerScore pl' formula
       json att
     Nothing -> raise "kein Spieler registriert"
 
