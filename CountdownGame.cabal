@@ -19,8 +19,7 @@ library
                      , Countdown.Completion
                      , Countdown.Game
                      , Countdown.Game.Players
-  other-modules:       Countdown.Game.Challanges
-                     , Countdown.Game.Attempts
+  other-modules:       Countdown.Game.Attempts
                      , Countdown.Game.Random
   -- other-modules:       
   -- other-extensions:    

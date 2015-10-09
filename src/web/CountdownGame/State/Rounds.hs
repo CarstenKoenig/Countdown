@@ -3,8 +3,7 @@
 
 
 module CountdownGame.State.Rounds
-       ( current
-       , startNext
+       (
        )where
 
 import GHC.Generics (Generic)
@@ -21,28 +20,12 @@ import qualified Data.Map.Strict as M
 import Data.Text (Text)
 import Data.Time (UTCTime, NominalDiffTime, getCurrentTime, addUTCTime)
 
-import CountdownGame.State.Challanges
 import CountdownGame.References
-import CountdownGame.State.Definitions (State (currentRound), Round (Round))
+import CountdownGame.State.Definitions
 import CountdownGame.Database (insertChallange)
 
 import Countdown.Game (Attempt, AttemptsMap, Challange)
 import qualified Countdown.Game as G
-
-startNext :: State -> IO ()
-startNext state = do
-  next <- getNext state
-  time <- (30 `addUTCTime`) <$> getCurrentTime
-  case next of
-    Just n -> do
-      chId <- insertChallange n
-      let r = Round n chId (Just time)
-      modifyRef (const (Just r, ())) (currentRound state)
-      startGeneration state
-    Nothing -> return ()
-
-current :: State -> IO (Maybe Round)
-current = readRef id . currentRound
 
 -- $doc
 -- Es gibt zwei Zustände:
@@ -93,15 +76,16 @@ warteStart startZeit  = do
 
 rundenPhase :: SpielParameter -> Challange -> IO Phasen
 rundenPhase params chal = do
+  chId     <- insertChallange chal
   rundeBis <- (rundenZeit params `addUTCTime`) <$> getCurrentTime
   vers     <- createRef M.empty
   erg      <- async $ warteErgebnise rundeBis chal vers
-  return $ RundePhase rundeBis chal vers erg
+  return $ RundePhase rundeBis chal vers chId erg
 
 warteErgebnise :: UTCTime -> Challange -> Versuche -> IO Ergebnisse
 warteErgebnise endeZeit aufg refVers = do
   warteBis endeZeit
-  readRef (berechneErgebnise aufg) refVers
+  readRef berechneErgebnisse refVers
 
 warteBis :: UTCTime -> IO ()
 warteBis zeit = do
@@ -110,46 +94,3 @@ warteBis zeit = do
     threadDelay 250000
     warteBis zeit
   else return ()
-  
-
-data SpielParameter =
-  SpielParameter
-  { warteZeit  :: NominalDiffTime
-  , rundenZeit :: NominalDiffTime
-  }
-
-data Phasen
-  = Start
-  | WartePhase
-    { startNaechsteRunde :: UTCTime
-    , letzteErgebnisse   :: Ergebnisse
-    , naechsteChallange  :: Async Challange }
-  | RundePhase
-    { endeRunde       :: UTCTime
-    , aufgabe         :: Challange
-    , spielerVersuche :: Versuche
-    , ergebnisse      :: Async Ergebnisse }
-
-type Versuche   = Reference AttemptsMap
-
-type Ergebnisse = [Ergebnis]
-data Ergebnis =
-  Ergebnis
-  { name       :: Text
-  , score      :: Int
-  , value      :: Maybe Int
-  , difference :: Maybe Int
-  , formula    :: Text
-  } deriving (Generic, Show)
-
-instance ToJSON Ergebnis
-
-berechneErgebnise :: Challange -> AttemptsMap -> Ergebnisse
-berechneErgebnise chal attMap =
-  sortBy (compare `on` (negate . score)) scores
-  where
-    scores = map calcScore . M.toList $ attMap
-    calcScore (_, att) =
-      Ergebnis (G.nickName $ G.fromPlayer att) (G.score att) (G.value att) (G.difference att) (G.formula att)
-
-

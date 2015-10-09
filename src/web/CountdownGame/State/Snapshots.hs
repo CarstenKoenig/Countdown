@@ -22,57 +22,27 @@ import qualified Countdown.Game as G
 
 import CountdownGame.References
 import CountdownGame.Database (getPlayersMap)
-import CountdownGame.State.Definitions (State (..), Round (challange, validTill))
+import CountdownGame.State.Definitions (State (..), Ergebnisse)
+import qualified CountdownGame.State.Definitions as Def
 
 data Snapshot =
   Snapshot
   { goal         :: Maybe Int
   , availableNrs :: [Int]
-  , isStartable  :: Bool
+  , isWaiting    :: Bool
   , isRunning    :: Bool
-  , secondsLeft  :: Maybe Int
-  , scoreBoard   :: [Score]
+  , secondsLeft  :: Int
+  , scoreBoard   :: Ergebnisse
   } deriving (Generic, Show)
 
 instance ToJSON Snapshot
 
-data Score =
-  Score
-  { name       :: Text
-  , score      :: Int
-  , value      :: Maybe Int
-  , difference :: Maybe Int
-  , formula    :: Maybe Text
-  } deriving (Generic, Show)
-
-instance ToJSON Score
-
 takeSnapshot :: Bool -> State -> IO Snapshot
 takeSnapshot isAdmin state = do
-  rd <- readRef id $ currentRound state
-  atts <- readRef id $ playerAttempts state
-  ps <- getPlayersMap (connectionPool state)
-  ready <- readRef isJust $ nextChallange state
-  now <- getCurrentTime
-  let goal = G.targetNumber . challange <$> rd
-      nrs = maybe [] (G.availableNumbers . challange) rd
-      till = rd >>= validTill
-      secs = (`diffUTCTime` now) <$> till
-      run = isJust rd && fromMaybe (-1) secs > 0
-      scs = calculateScores (not run && isAdmin) goal ps atts
-  return $ Snapshot goal nrs (not run && ready) run (truncate <$> secs) scs
-
-calculateScores :: Bool -> Maybe Int -> PlayersMap -> AttemptsMap -> [Score]
-calculateScores _ Nothing ps _ =
-  map (\(_,nick) -> Score nick 0 Nothing Nothing Nothing) . M.toList $ M.map G.nickName ps
-calculateScores inclFormula (Just g) ps gm =
-  sortBy (compare `on` (negate . score)) scores
-  where
-    scores = map assocGuess . M.toList $ M.map G.nickName ps
-    assocGuess (pid, nick) = Score nick scr val diff form
-      where diff  = attmp >>= G.difference
-            val   = attmp >>= G.value
-            scr   = maybe 0 G.score $ attmp
-            form  = if inclFormula then G.formula <$> attmp else Nothing
-            attmp = M.lookup pid gm
-
+  zielZ <- Def.zielZahl state
+  verfNrs <- Def.verfuegbareZahlen state
+  wartet <- Def.istWartend state
+  laueft <- Def.istInRunde state
+  seks <- Def.nochZuWartendeSekunden state
+  ergs <- Def.ergebnisListe state
+  return $ Snapshot zielZ verfNrs wartet laueft seks ergs
