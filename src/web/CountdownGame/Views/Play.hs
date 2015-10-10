@@ -19,31 +19,34 @@ render player = html $ do
   body $ do
     H.div ! A.class_ "overlay" ! dataBind "visible: gotBusted" $ do
       H.div ! A.class_ "centerMessage" $ do
-        h1 "damn it.."
         H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
 
-    H.div ! A.class_ "InRound" ! dataBind "visible: isRunning" $ do
-      H.div ! A.class_ "Timer" ! dataBind "text: secondsLeft" $ ""
-      H.div ! A.class_ "Aufgabe" $ do
-        H.div ! A.class_ "Kopf" $ do
-          H.div ! A.class_ "Zahlen" $ do
-            H.ul ! dataBind "foreach: numbers" $ do
-              H.li ! dataBind "text: $data" $ ""
-          H.div ! A.class_ "Ziel" $ do
-            H.span ! dataBind "text: goal" $ ""
-        H.div ! A.class_ "FormulaInput" $ do
+    H.header $ do
+      H.h1 "CountDown"
+
+    H.section $ do
+      H.div ! A.id "left" $
+        H.h1 ! A.id "timer" ! dataBind "text: secondsLeft" $ "--"
+
+      H.div ! A.id "right" ! dataBind "visible: isRunning" $ do
+        H.div ! A.id "zahlen" $ do
+          H.h3 "Aufgabe"
+          H.ul ! dataBind "foreach: numbers" $ do
+            H.li $ H.button ! dataBind "text: $data" $ ""
+          H.h2 ! dataBind "text: goal" $ ""
+        H.div ! A.id "versuch" $ do
+          H.h3 "Dein Versuch"
           H.form $ do
-            H.input ! A.type_ "text" ! A.name "formula" ! A.autofocus "" ! dataBind "value: formula"
-            H.input ! type_ "submit" ! dataBind "click: eval" ! value "OK"
-        H.div ! A.class_ "Ergebnis" $ do
+            H.input ! A.type_ "text" ! A.autofocus "" ! dataBind "value: formula"
+            H.input ! A.type_ "submit" ! dataBind "click: eval" ! A.value "OK"
+        H.div ! A.id "ergebnis" $ do
           p $ do
             H.span "letztes Ergebnis: "
             H.span ! dataBind "text: result" $ ""
         H.div ! A.class_ "Error" ! dataBind "html: error" $ ""
             
 
-    H.div ! A.class_ "Ergebnisse" ! dataBind "visible: isWaiting" $ do
-      H.div ! A.class_ "Timer" ! dataBind "text: secondsLeft" $ ""
+    H.div ! A.id "right" ! dataBind "visible: isWaiting" $ do
       H.table $ do
         H.thead $ do
           H.td "Spieler"
@@ -52,6 +55,8 @@ render player = html $ do
           H.tr $ do
             H.td ! dataBind "text: name" $ ""
             H.td ! dataBind "text: score" $ ""
+
+    H.footer "Developer Open Space 2015"
       
 dataBind :: AttributeValue -> Attribute
 dataBind = dataAttribute "bind"

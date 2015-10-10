@@ -1,0 +1,146 @@
+<style>
+  
+header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px; 
+}
+nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px; 
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+display: block;
+width: 100%;
+background: gray;
+margin-bottom: 5px;
+text-align: center;
+cursor: default;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+
+nav a:hover {
+background: darkgrey;
+}
+
+.here {
+background: #8888da;
+}
+
+.here:hover {
+background: #8888da;
+}
+
+section {
+    margin-left: auto;
+    margin-right: auto;
+    width:450px;
+    padding:10px; 
+}
+
+#left {
+float: left;
+width: 50px;
+text-align=center;
+}
+
+#right {
+float: left;
+width: 400px;
+overflow: auto;
+}
+
+#zahlen {
+overflow: auto;
+}
+
+#zahlen ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#zahlen li {
+float: left;
+margin-right: 3px;
+}
+
+#zahlen button {
+width: 35px;
+height: 25px;
+}
+
+#zahlen h2 {
+margin: 0px;
+margin-left: 10px;
+}
+
+#versuch form input {
+font-size: 1.4em;
+}
+
+#versuch form button {
+font-size: 1.4em;
+}
+
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+</style>
+
+<body>
+
+<header>
+<h1>CountDown</h1>
+</header>
+
+<section>
+  <div id="left">
+    <h1 id="timer">14</h1>
+  </div>
+  <div id="right">
+    <div id="zahlen">
+      <h3>Aufgabe</h3>
+      <ul>
+	<li><button>1</button></li>
+	<li><button>5</button></li>
+	<li><button>7</button></li>
+	<li><button>15</button></li>
+	<li><button>25</button></li>
+	<li><button>100</button></li>
+	<li><h2>765</h2></li>
+      </ul>
+    </div>
+    <div id="versuch">
+      <h3>Dein Versuch</h3>
+      <form>
+	<input type="text" /><button>OK</button>
+      </fomr>
+    </div>
+  </div>
+</section>
+
+<footer>
+Developer Open Space 2015
+</footer>
+
+</body>

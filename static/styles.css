@@ -1,174 +1,108 @@
-body {
-    font-size: 1.8em;
+  
+header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px; 
+}
+nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px; 
 }
 
-h1 {
-    color: blue;
-}
-
-.InRound {
-    margin-left: auto;
-    margin-right: auto;
-
-    padding: 10px;
-    width: 800px;
-}
-
-.Timer {
-    float: left;
-    display: block;
-
-    width: 60px;
-    height: 60px;
-    background: lightyellow;
-
-    margin: 10px;
-
-    font-weight: bold;
-    font-size: 1.2em;
-
-    align-content: center;
-    vertical-align: middle;
-    text-align: center;
-    line-height: 60px;
-
-    border-style: solid;
-    border-color: black;
-    
-}
-
-.Aufgabe {
-    float: left;
-
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-
-    background: lightgray;
-
-    padding: 15px;
-
-    border-style: solid;
-    border-color: black;
-}
-
-.Kopf {
-    clear: both;
-
-    width: 550px;
-    margin-left: auto;
-    margin-right: auto;
-
-    background: red;
-}
-
-.Kopf .Zahlen {
-    float: left;
-
-    margin-right: 10px;
-}
-
-.Zahlen ul {
+nav ul {
     list-style-type: none;
-    height: 80px;
-    margin: auto;
+    margin: 0;
+    padding: 0;
 }
 
-.Zahlen li {
-    float: left;
-    
-    margin-right: 5px;
-    border-style: solid;
-    border-color: black;
-    min-width: 32px;
-
+nav a {
+    display: block;
+    width: 100%;
+    background: gray;
+    margin-bottom: 5px;
     text-align: center;
-
-    background: lightpink;
-    padding: 5px;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-.Ziel {
+nav a:hover {
+    background: darkgrey;
+}
+
+.here {
+    background: #8888da;
+}
+
+.here:hover {
+    background: #8888da;
+}
+
+section {
+    margin-left: auto;
+    margin-right: auto;
+    width:450px;
+    padding:10px; 
+}
+
+#left {
     float: left;
-
-    margin-left: 40px;
-    padding: 5px;
-
-    border-style: solid;
-    border-color: black;
-    min-width: 32px;
-
-    font-weight: bold;
-
+    width: 50px;
     text-align: center;
-
-    background: lightgreen;
 }
 
-.FormulaInput  {
-    clear: both;
-
-    width: 550px;
-    margin-left: auto;
-    margin-right: auto;
-
+#right {
+    float: left;
+    width: 400px;
+    overflow: auto;
 }
 
-.FormulaInput input {
-    font-size: 1em;
-    padding: 5px;
+#zahlen {
+    overflow: auto;
 }
 
-.Ergebnis {
-    width: 550px;
-    margin-left: auto;
-    margin-right: auto;
+#zahlen ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 }
 
-.Ergebnis p span:nth-child(2) {
-    color: darkgreen;
-    font-weight: bold;
-    font-size: 1.2em;
+#zahlen li {
+    float: left;
+    margin-right: 3px;
 }
 
-
-.Main {
-    margin-left: auto;
-    margin-right: auto;
-    
-    padding: 10px;
-    width: 800px;
+#zahlen button {
+    width: 35px;
+    height: 25px;
 }
 
-.Guess {
-    padding: 10px;
-    background: lightgray;
+#zahlen h2 {
+    margin: 0px;
+    margin-left: 10px;
 }
 
-.Guess input {
-    font-size: 1em;
-    padding: 5px;
+#versuch form input {
+    font-size: 1.4em;
 }
 
-.Ergebnisse {
-    padding: 10px;
+#versuch form button {
+    font-size: 1.4em;
 }
 
-.Ergebnisse table {
-    font-size: 1em;
-    padding: 25px;
-    background: lightyellow;
-    width: 700px;
-}
-
-.Ergebnisse thead {
-    font-weight: bold;
-}
-
-.Result {
-    font-weight: bold;
-    font-size: 1.3em;
-    color: darkgreen;
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
 }
 
 .Error {
@@ -181,24 +115,21 @@ h1 {
     font-weight: bold;
     font-size: 1em;
 }
-
-button {
-    margin: 40px;
-    font-size: 1.6em;
-}
-
 .overlay{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  background-color: rgba(0,0,0,0.9); /*dim the background*/
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.9); /*dim the background*/
 }
 
 .centerMessage {
     width: 480px;
-    height: 320px;
+    
     margin: auto;
+    margin-top: 200px;
+
+    font-size: 2em;
 }
