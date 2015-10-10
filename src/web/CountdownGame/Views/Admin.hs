@@ -38,11 +38,11 @@ render _ = html $ do
       H.div ! A.id "right" ! dataBind "visible: isWaiting" $ do
         H.table $ do
           H.thead $ do
-            H.td "Spieler"
-            H.td "Punkte"
-            H.td "Ergebnis"
-            H.td "Differenz"
-            H.td "Formel"
+            H.th "Spieler"
+            H.th "Punkte"
+            H.th "Ergebnis"
+            H.th "Differenz"
+            H.th "Formel"
           H.tbody ! dataBind "foreach: scores" $
             H.tr $ do
               H.td ! dataBind "text: name" $ ""

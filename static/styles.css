@@ -133,3 +133,53 @@ footer {
 
     font-size: 2em;
 }
+
+table { 
+    color: #333;
+    font-family: Helvetica, Arial, sans-serif;
+    width: 95%; 
+    border-collapse: collapse;
+    border-spacing: 0; 
+}
+
+td, th { 
+    border: 1px solid transparent;
+    height: 30px; 
+}
+
+th {
+    background: #DADADA;
+    font-style: italic;
+    height: 32px; 
+}
+
+td {
+    background: #FAFAFA;
+    text-align: center;
+}
+
+tr:nth-child(1)>td {
+    text-shadow: 1px 1px #D9D919;
+    font-weight: bold;
+    font-size: 1.3em;
+}   
+
+tr:nth-child(2)>td {
+    text-shadow: 1px 1px #E6E8FA;
+    font-weight: bold;
+    font-size: 1.2em;
+}   
+
+tr:nth-child(3)>td {
+    text-shadow: 1px 1px #A67D3D;
+    font-weight: bold;
+    font-size: 1.1em;
+}   
+
+tr:nth-child(even) td {
+    background: #F8F8F8;
+}   
+
+tr:nth-child(odd) td {
+    background: #FEFEFE;
+}

@@ -22,14 +22,11 @@ render scores = html $ do
       H.h1 "CountDown"
 
     H.section $ do
-      H.div ! A.id "left" $
-        H.h1 ! A.id "timer" $ "--"
-
       H.div ! A.id "right" $ do
         H.table $ do
           H.thead $ do
-            H.td "Spieler"
-            H.td "Punkte"
+            H.th "Spieler"
+            H.th "Punkte"
           H.tbody $ forM_ scores (\ (pl, sc) ->
             H.tr $ do
               H.td (text $ G.nickName pl)

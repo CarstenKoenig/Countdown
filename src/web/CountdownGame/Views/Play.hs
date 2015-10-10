@@ -49,8 +49,8 @@ render player = html $ do
     H.div ! A.id "right" ! dataBind "visible: isWaiting" $ do
       H.table $ do
         H.thead $ do
-          H.td "Spieler"
-          H.td "Punkte"
+          H.th "Spieler"
+          H.th "Punkte"
         H.tbody ! dataBind "foreach: scores" $
           H.tr $ do
             H.td ! dataBind "text: name" $ ""
