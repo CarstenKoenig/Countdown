@@ -11,17 +11,21 @@ module CountdownGame.Database
        , getPlayersMap
        , insertChallange
        , setPlayerScore
+       , getHighscores
        ) where
 
+import Control.Monad (forM)
 import Control.Monad.Logger (runNoLoggingT)
 import Control.Monad.Trans.Resource (runResourceT)
 
+import Data.Function (on)
 import Data.Int (Int64)
 import Data.Text (Text)
 import Data.Time (UTCTime)
+import Data.List (groupBy, sortBy, foldl')
 import qualified Data.Map.Strict as M
 import Database.Persist
-import Database.Persist.Sql (ConnectionPool, SqlPersistT, insert, fromSqlKey, toSqlKey, runSqlPool)
+import Database.Persist.Sql (ConnectionPool, SqlPersistT, insert, fromSqlKey, toSqlKey, runSqlPool, rawSql)
 import Database.Persist.Sqlite (runSqlite, createSqlitePool, runMigration)
 import Database.Persist.TH
 
@@ -45,7 +49,9 @@ addPlayer :: Text -> ConnectionPool -> IO P.Player
 addPlayer nick pool = runInPool pool $ addPlayer' nick
 
 getPlayer :: P.PlayerId -> ConnectionPool -> IO (Maybe P.Player)
-getPlayer id pool = runInPool pool $ do
+getPlayer id pool = runInPool pool $ getPlayer' id
+
+getPlayer' id = do
   pl <- get (toSqlKey $ fromIntegral id)
   return $ case pl of
     Nothing -> Nothing
@@ -103,4 +109,20 @@ setPlayerScore chId pId score = runSqlite connectionString $ do
   case sc of
     Nothing -> insert_ $ Score score pid id
     Just e  -> update (entityKey e) [ ScoreScore =. score ]
-      
+
+getScores = do
+  pls <- selectList [] [Asc ScorePlayer]
+  return $ map fromEntity pls
+  where
+    fromEntity entity =
+      ((fromIntegral . fromSqlKey . scorePlayer $ entityVal entity), (scoreScore $ entityVal entity))
+              
+getHighscores :: ConnectionPool -> IO [(P.Player, Int)]
+getHighscores pool = runInPool pool $ do
+  grps <- groupBy ((==) `on` fst) <$> getScores
+  let scrs = map (foldl' (\ (_,sc) (pid,c) -> (pid, sc+c)) (0,0)) grps
+      srts = sortBy (compare `on` (negate . snd)) scrs
+  forM srts (\ (pid, scs) -> do
+                 (Just p) <- getPlayer' pid
+                 return (p, scs))
+  

@@ -48,6 +48,7 @@ main = do
     get "/play" $ Actions.play state
     get "/register" Actions.register
     get "/admin" $ Actions.admin state
+    get "/scores" $ Actions.highScores state
     post "/register" $ Actions.postRegister state
     get "/api/players" $ Actions.getPlayers state
     get "/api/current" $ Actions.getSnapshot state

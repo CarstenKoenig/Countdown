@@ -5,6 +5,7 @@ module CountdownGame.Actions
        , register
        , postRegister
        , admin
+       , highScores
        , getPlayers
        , getSnapshot
        , evalFormula
@@ -37,7 +38,7 @@ import Network.Wai (remoteHost)
 import Countdown.Game (PlayerId)
 import qualified Countdown.Game as G
 
-import CountdownGame.Spiel as Spiel (State)
+import CountdownGame.Spiel (State)
 import qualified CountdownGame.Spiel as Spiel
 import qualified CountdownGame.Players as Players
 import qualified CountdownGame.Database as Rep
@@ -45,6 +46,7 @@ import qualified CountdownGame.Database as Rep
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
+import qualified CountdownGame.Views.Highscores as ScoresView
 
 -- * controller actions
 
@@ -70,6 +72,12 @@ admin state = do
   if not localhost
     then raise "you are not allowed"
     else render (AdminView.render state)
+
+highScores :: State -> ActionM ()
+highScores state = do
+  scores <- liftIO $ Rep.getHighscores (Spiel.connectionPool state)
+  render (ScoresView.render scores)
+         
 
 -- * Web-API Part
 
