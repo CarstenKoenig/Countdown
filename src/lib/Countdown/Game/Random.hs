@@ -28,8 +28,10 @@ randomChallange = do
     findValid ns = do
       ex <- randomExpression ns
       case fromValid (eval ex) of
-        Just n  -> return n
-        Nothing -> findValid ns
+        Just n
+          | n >= 100 && n < 1000 -> return n
+          | otherwise          -> findValid ns
+        Nothing                -> findValid ns
     fromValid [n] = Just n
     fromValid _   = Nothing
 

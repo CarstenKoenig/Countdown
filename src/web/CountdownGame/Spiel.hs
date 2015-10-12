@@ -32,7 +32,7 @@ data State =
 
 initState :: Int -> IO State
 initState nrPoolCons = do
-  phases <- startGameLoop (SpielParameter 60 60)
+  phases <- startGameLoop (SpielParameter 30 60)
   pool <- createPool nrPoolCons
   return $ State phases pool
 
