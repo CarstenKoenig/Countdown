@@ -45,6 +45,7 @@ main = do
       if localHost
         then redirect "/admin"
         else redirect "/play"
+    get "/anleitung" $ Actions.anleitung
     get "/play" $ Actions.play state
     get "/register" Actions.register
     get "/admin" $ Actions.admin state

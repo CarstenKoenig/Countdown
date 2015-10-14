@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module CountdownGame.Actions
-       ( play
+       ( anleitung
+       , play
        , register
        , postRegister
        , admin
@@ -43,12 +44,16 @@ import qualified CountdownGame.Spiel as Spiel
 import qualified CountdownGame.Players as Players
 import qualified CountdownGame.Database as Rep
 
+import qualified CountdownGame.Views.Anleitung as AnleitungView
 import qualified CountdownGame.Views.Play as PlayView
 import qualified CountdownGame.Views.Register as RegisterView
 import qualified CountdownGame.Views.Admin as AdminView
 import qualified CountdownGame.Views.Highscores as ScoresView
 
 -- * controller actions
+
+anleitung :: ActionM ()
+anleitung = render AnleitungView.render
 
 play :: State -> ActionM ()
 play state = do
