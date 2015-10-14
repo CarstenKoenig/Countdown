@@ -30,10 +30,10 @@ data State =
   , connectionPool :: ConnectionPool
   }
 
-initState :: Int -> IO State
-initState nrPoolCons = do
-  phases <- startGameLoop (SpielParameter 30 60)
-  pool <- createPool nrPoolCons
+initState :: Text -> Int -> IO State
+initState dbFile nrPoolCons = do
+  pool <- createPool dbFile nrPoolCons
+  phases <- startGameLoop pool (SpielParameter 30 60)
   return $ State phases pool
 
 data Snapshot =

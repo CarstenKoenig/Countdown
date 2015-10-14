@@ -110,7 +110,7 @@ evalFormula state = do
   pl <- Players.registeredPlayer state
   case pl of
     Just pl' -> do
-      att <- liftIO $ Spiel.versuchHinzufuegen (Spiel.aktuellePhase state) Rep.setPlayerScore pl' formula
+      att <- liftIO $ Spiel.versuchHinzufuegen (Spiel.aktuellePhase state) (Rep.setPlayerScore (Spiel.connectionPool state)) pl' formula
       json att
     Nothing -> raise "kein Spieler registriert"
 

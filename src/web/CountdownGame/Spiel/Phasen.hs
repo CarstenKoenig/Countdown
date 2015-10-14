@@ -26,7 +26,7 @@ import Data.Text (Text)
 import Data.Time (UTCTime, NominalDiffTime, getCurrentTime, addUTCTime)
 
 import CountdownGame.References
-import CountdownGame.Database (insertChallange)
+import CountdownGame.Database (ConnectionPool, insertChallange)
 
 import Countdown.Game (Attempt, AttemptsMap, Challange)
 import qualified Countdown.Game as G
@@ -68,10 +68,10 @@ data Phasen
     , databaseKey     :: Int64
     , ergebnisse      :: Async Ergebnisse }
 
-startGameLoop :: SpielParameter -> IO (Reference Phasen)
-startGameLoop params = do
+startGameLoop :: ConnectionPool -> SpielParameter -> IO (Reference Phasen)
+startGameLoop pool params = do
   ref <- createRef Start
-  _   <- forkIO $ gameLoop params [] ref
+  _   <- forkIO $ gameLoop pool params [] ref
   return ref
 
 type Versuche   = Reference AttemptsMap
@@ -108,15 +108,15 @@ berechneErgebnisse attMap =
       Ergebnis (G.nickName $ G.fromPlayer att) (G.score att) (G.value att) (G.difference att) (G.formula att)
 
 
-gameLoop :: SpielParameter -> Ergebnisse ->  Reference Phasen -> IO ()
-gameLoop params ltErg phase = do
+gameLoop :: ConnectionPool -> SpielParameter -> Ergebnisse ->  Reference Phasen -> IO ()
+gameLoop pool params ltErg phase = do
   warten <- wartePhase params ltErg
   modifyRef (const (warten, ())) phase
   aufg <- wait . naechsteChallange $ warten
-  runde <- rundenPhase params aufg
+  runde <- rundenPhase pool params aufg
   modifyRef (const (runde, ())) phase
   erg <- wait . ergebnisse $ runde
-  gameLoop params erg phase
+  gameLoop pool params erg phase
   
 wartePhase :: SpielParameter -> Ergebnisse -> IO Phasen
 wartePhase params ltErg = do
@@ -131,9 +131,9 @@ warteStart startZeit  = do
   (chal, _) <- waitBoth neue warte
   return chal
 
-rundenPhase :: SpielParameter -> Challange -> IO Phasen
-rundenPhase params chal = do
-  chId     <- insertChallange chal
+rundenPhase :: ConnectionPool -> SpielParameter -> Challange -> IO Phasen
+rundenPhase pool params chal = do
+  chId     <- insertChallange pool chal
   rundeBis <- (rundenZeit params `addUTCTime`) <$> getCurrentTime
   vers     <- createRef M.empty
   erg      <- async $ warteErgebnise rundeBis chal vers

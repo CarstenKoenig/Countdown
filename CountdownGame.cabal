@@ -34,7 +34,7 @@ library
   hs-source-dirs:      src/lib
   default-language:    Haskell2010
 
-executable CountdownGame
+executable server
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
@@ -48,6 +48,8 @@ executable CountdownGame
                      , containers
                      , cookie
                      , countdown
+                     , data-default-class
+                     , filepath
                      , http-types
                      , monad-logger
                      , network

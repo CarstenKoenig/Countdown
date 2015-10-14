@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings    #-}
 
 module CountdownGame.Database
-       ( createPool
+       ( ConnectionPool
+       , createPool
        , initializeDatabase
        , addPlayer
        , updatePlayer
@@ -33,14 +34,11 @@ import CountdownGame.Database.Models
 import qualified Countdown.Game as G
 import qualified Countdown.Game.Players as P
 
-createPool :: Int -> IO ConnectionPool
-createPool n = runResourceT . runNoLoggingT  $ createSqlitePool connectionString n
+createPool :: Text -> Int -> IO ConnectionPool
+createPool dbFile n = runResourceT . runNoLoggingT  $ createSqlitePool dbFile n
 
 runInPool :: ConnectionPool ->  SqlPersistT IO a -> IO a
 runInPool = flip runSqlPool
-
-connectionString :: Text
-connectionString = "countdown.db"
 
 initializeDatabase :: ConnectionPool -> IO ()
 initializeDatabase pool = runInPool pool $ do runMigration migrateAll
@@ -96,13 +94,13 @@ addPlayer' nick = do
   let id = fromIntegral $ fromSqlKey key
   return $ P.Player nick id
 
-insertChallange :: G.Challange -> IO Int64
-insertChallange ch = runSqlite connectionString $ do
+insertChallange :: ConnectionPool -> G.Challange -> IO Int64
+insertChallange pool ch = runInPool pool $ do
   key <- insert $ Challange (G.targetNumber ch) (G.availableNumbers ch)
   return $ fromSqlKey key
 
-setPlayerScore :: Int64 -> P.PlayerId -> Int -> IO ()
-setPlayerScore chId pId score = runSqlite connectionString $ do
+setPlayerScore :: ConnectionPool -> Int64 -> P.PlayerId -> Int -> IO ()
+setPlayerScore pool chId pId score = runInPool pool $ do
   let id = toSqlKey chId
       pid = toSqlKey $ fromIntegral pId
   sc <- getBy $ Index pid id
